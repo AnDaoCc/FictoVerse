@@ -29,3 +29,6 @@ data/
 logs/
 *.spec
 *.log
+
+# Build artifacts
+packaging/installer-stage/
