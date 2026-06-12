@@ -2,6 +2,7 @@
 
 import sys
 import threading
+from pathlib import Path
 from typing import Any
 
 from novel_world.launcher import bootstrap
@@ -437,6 +438,36 @@ class LauncherApi:
         except Exception as e:
             return {"ok": False, "message": str(e)}
 
+    def save_file(self, default_name: str, data_b64: str) -> dict[str, Any]:
+        """弹出原生保存对话框，将 base64 数据写入用户选择的路径。"""
+        try:
+            import base64, os
+            from tkinter import Tk, filedialog
+            root = Tk()
+            root.withdraw()
+            root.attributes("-topmost", True)
+            path = filedialog.asksaveasfilename(
+                title="保存文件",
+                initialfile=default_name,
+                defaultextension=".zip" if default_name.endswith(".zip") else "",
+                filetypes=[
+                    ("ZIP 文件", "*.zip"),
+                    ("JSON 文件", "*.json"),
+                    ("PNG 图片", "*.png"),
+                    ("所有文件", "*.*"),
+                ],
+            )
+            root.destroy()
+            if not path:
+                return {"ok": False, "message": "已取消"}
+            data = base64.b64decode(data_b64)
+            os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+            with open(path, "wb") as f:
+                f.write(data)
+            return {"ok": True, "path": os.path.abspath(path)}
+        except Exception as e:
+            return {"ok": False, "message": str(e)}
+
     def create_character(self, world_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         try:
             return world_admin.create_character(world_id, payload or {})
@@ -749,6 +780,32 @@ class LauncherApi:
                 prerequisites=bootstrap.check_prerequisites(),
             )
         return self._run_in_thread("upgrade", "一键升级中…", _work)
+
+    def choose_project_root(self) -> dict[str, Any]:
+        """弹出文件夹选择器，更换项目根目录。"""
+        try:
+            from tkinter import Tk, filedialog, messagebox
+            root_w = Tk()
+            root_w.withdraw()
+            root_w.attributes("-topmost", True)
+            chosen = filedialog.askdirectory(
+                title="请选择 FictoVerse（虚构宇宙）的解压目录",
+                mustexist=True,
+            )
+            root_w.destroy()
+            if not chosen:
+                return {"ok": False, "message": "已取消"}
+            chosen_path = Path(chosen)
+            if not (chosen_path / "pyproject.toml").is_file():
+                return {"ok": False, "message": "所选目录不是 FictoVerse 的解压目录，请选择包含 pyproject.toml 的文件夹"}
+            bootstrap.set_and_save_project_root(chosen_path)
+            return {
+                "ok": True,
+                "path": str(chosen_path),
+                "prerequisites": bootstrap.check_prerequisites(),
+            }
+        except Exception as e:
+            return {"ok": False, "message": str(e)}
 
     def get_available_pythons(self) -> list[dict[str, str]]:
         """返回系统上所有兼容 Python 版本列表，标记当前使用的版本。"""

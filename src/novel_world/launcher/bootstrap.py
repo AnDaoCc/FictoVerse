@@ -20,6 +20,27 @@ import httpx
 from novel_world.bootstrap.config import default_config, project_root
 from novel_world.infrastructure.server_meta import read_server_meta, remove_server_meta
 
+# ---- launcher config persistence ----
+_LAUNCHER_CONFIG_DIR = Path(os.environ.get("APPDATA", os.path.expanduser("~"))) / "FictoVerse"
+_LAUNCHER_CONFIG_FILE = _LAUNCHER_CONFIG_DIR / "launcher-config.json"
+
+
+def load_launcher_config() -> dict[str, Any]:
+    """读取启动器配置文件（持久化项目根目录路径等）。"""
+    try:
+        if _LAUNCHER_CONFIG_FILE.is_file():
+            return json.loads(_LAUNCHER_CONFIG_FILE.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        pass
+    return {}
+
+
+def save_launcher_config(data: dict[str, Any]) -> None:
+    """保存启动器配置文件。"""
+    _LAUNCHER_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    _LAUNCHER_CONFIG_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 LAUNCHER_VERSION = "2026-V2"
 _ROOT_SEARCH_DEPTH = 4
 MIN_PYTHON = (3, 10)
@@ -62,23 +83,47 @@ class PythonNotFoundError(RuntimeError):
 
 
 def resolve_project_root() -> Path:
+    # 1. Saved config
+    config = load_launcher_config()
+    saved = config.get("project_root", "").strip()
+    if saved:
+        path = Path(saved).resolve()
+        if (path / "pyproject.toml").is_file():
+            os.environ["NOVEL_WORLD_ROOT"] = str(path)
+            return path
+
+    # 2. Environment variable
     env_root = os.environ.get("NOVEL_WORLD_ROOT", "").strip()
     if env_root:
         path = Path(env_root).resolve()
         if (path / "pyproject.toml").is_file():
             return path
 
+    # 3. Search nearby (current exe location)
     if getattr(sys, "frozen", False):
         start = Path(sys.executable).resolve().parent
         candidates = [start, *start.parents[:_ROOT_SEARCH_DEPTH]]
         for candidate in candidates:
             if (candidate / "pyproject.toml").is_file():
                 return candidate
-        raise ProjectRootNotFoundError(
-            "请将启动器 exe 放在含 pyproject.toml 的项目根目录（或设置 NOVEL_WORLD_ROOT）。"
-        )
 
-    return project_root()
+    # 4. Source development mode
+    if not getattr(sys, "frozen", False):
+        return project_root()
+
+    # 5. Frozen but nothing found → caller should handle
+    raise ProjectRootNotFoundError(
+        "请将启动器 exe 放在含 pyproject.toml 的项目根目录（或设置 NOVEL_WORLD_ROOT）。"
+    )
+
+
+def set_and_save_project_root(path: Path) -> None:
+    """设置项目根目录并持久化保存。"""
+    path = path.resolve()
+    if not (path / "pyproject.toml").is_file():
+        raise ProjectRootNotFoundError(f"所选目录未找到 pyproject.toml：{path}")
+    os.environ["NOVEL_WORLD_ROOT"] = str(path)
+    save_launcher_config({"project_root": str(path)})
 
 
 def get_root() -> Path:

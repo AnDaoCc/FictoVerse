@@ -31,6 +31,8 @@
   const btnUpgradePython = $("btn_upgrade_python");
   const btnUpgradeDeps = $("btn_upgrade_deps");
   const selPython = $("sel_python");
+  const btnChangeRoot = $("btn_change_root");
+  const infoProjectRoot = $("info_project_root");
 
   function api() {
     return window.pywebview && window.pywebview.api;
@@ -60,6 +62,7 @@
     if (btnUpgradePython) btnUpgradePython.disabled = on || !apiReady;
     if (btnUpgradeDeps) btnUpgradeDeps.disabled = on || !apiReady;
     if (selPython) selPython.disabled = on || !apiReady;
+    if (btnChangeRoot) btnChangeRoot.disabled = on || !apiReady;
     if (on && statusBadge) {
       statusBadge.className = "status-badge busy";
       statusBadge.textContent = "处理中…";
@@ -417,6 +420,7 @@
   function applySystemInfo(info) {
     if (!info) return;
     if (infoLauncher) infoLauncher.textContent = info.launcher_version || "—";
+      if (infoProjectRoot && info.root) infoProjectRoot.textContent = info.root;
     if (infoApp) infoApp.textContent = info.app_version || "—";
     if (infoPython) infoPython.textContent = info.python_version || "—";
     if (infoVenv) {
@@ -643,6 +647,16 @@
         const recreate = chkRecreateVenv ? chkRecreateVenv.checked : false;
         runTask((a) => a.install_environment_async(recreate, true), {
           switchConsole: true,
+          showProgress: true,
+        });
+      });
+    }
+
+    if (btnChangeRoot) {
+      btnChangeRoot.addEventListener("click", () => {
+        if (!apiReady) return;
+        if (!confirm("将重新选择 FictoVerse 的解压目录，当前环境状态会刷新。\n\n是否继续？")) return;
+        runTask((a) => a.choose_project_root(), {
           showProgress: true,
         });
       });

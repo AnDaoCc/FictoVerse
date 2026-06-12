@@ -416,7 +416,10 @@
 
           <div class="card settings-card">
             <h2 class="section-title">启动偏好</h2>
-            <p class="muted settings-lead">可通过环境变量 <code>NOVEL_WORLD_ROOT</code> 指定项目根目录。</p>
+            <p class="muted settings-lead">当前项目目录：<code id="info_project_root">—</code></p>
+            <div class="settings-actions">
+              <button type="button" class="ghost await-api" id="btn_change_root" disabled>更改项目文件夹</button>
+            </div>
             <label class="check-row">
               <input type="checkbox" id="chk_open_browser" checked />
               启动后自动打开浏览器

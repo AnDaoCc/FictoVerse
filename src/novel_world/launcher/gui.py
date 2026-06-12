@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from novel_world.launcher.api import LauncherApi
+from novel_world.launcher import bootstrap
 from novel_world.launcher.bootstrap import get_root
 
 WINDOW_BG = "#faf8f5"
@@ -31,6 +32,35 @@ def resolve_ui_dir() -> Path:
             return Path(meipass) / "novel_world" / "launcher" / "ui"
     return Path(__file__).resolve().parent / "ui"
 
+def _prompt_project_root() -> Path | None:
+    """弹出文件夹选择器让用户选择 FictoVerse 解压目录。"""
+    from tkinter import Tk, filedialog, messagebox
+
+    root_w = Tk()
+    root_w.withdraw()
+    root_w.attributes("-topmost", True)
+
+    while True:
+        chosen = filedialog.askdirectory(
+            title="请选择 FictoVerse（虚构宇宙）的解压目录",
+            mustexist=True,
+        )
+        if not chosen:
+            root_w.destroy()
+            return None
+
+        chosen_path = Path(chosen)
+        if (chosen_path / "pyproject.toml").is_file():
+            root_w.destroy()
+            return chosen_path
+
+        messagebox.showwarning(
+            "路径无效",
+            "所选目录不是 FictoVerse 的解压目录。\n\n"
+            "请选择包含 pyproject.toml 和 GUI启动器.bat 的文件夹。",
+            parent=root_w,
+        )
+
 
 def main() -> None:
     if sys.platform != "win32":
@@ -52,6 +82,16 @@ def main() -> None:
             print(msg)
         sys.exit(1)
 
+    # Resolve project root - prompt if needed
+    try:
+        get_root()
+    except bootstrap.ProjectRootNotFoundError:
+        chosen = _prompt_project_root()
+        if chosen is None:
+            sys.exit(0)
+        bootstrap.set_and_save_project_root(chosen)
+
+    api = LauncherApi()
     api = LauncherApi()
     ui_dir = resolve_ui_dir()
     index_html = ui_dir / "index.html"

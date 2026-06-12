@@ -459,8 +459,8 @@
       if (!selectedWorldId) return;
       try {
         const res = await call("export_world_pack", selectedWorldId, true);
-        downloadB64(res.data.filename, res.data.data_b64);
-        toast("已导出");
+        const saved = await call("save_file", res.data.filename, res.data.data_b64);
+        toast(saved.path ? "已保存: " + saved.path : saved.message || "已取消");
       } catch (e) {
         toast(String(e));
       }
@@ -583,7 +583,7 @@
           selectedCharId,
           "json"
         );
-        downloadB64(res.data.filename, res.data.data_b64);
+        const saved = await call("save_file", res.data.filename, res.data.data_b64); toast(saved.path ? "已保存: " + saved.path : saved.message || "已取消");
       } catch (e) {
         toast(String(e));
       }
@@ -598,7 +598,7 @@
           selectedCharId,
           "png"
         );
-        downloadB64(res.data.filename, res.data.data_b64);
+        const saved = await call("save_file", res.data.filename, res.data.data_b64); toast(saved.path ? "已保存: " + saved.path : saved.message || "已取消");
       } catch (e) {
         toast(String(e));
       }
@@ -703,8 +703,8 @@
           toast(res.message || "导出失败");
           return;
         }
-        downloadB64(res.data.filename || "world_info.json", res.data.data_b64);
-        toast("已导出 World Info");
+        const saved = await call("save_file", res.data.filename || "world_info.json", res.data.data_b64);
+        toast(saved.path ? "已保存: " + saved.path : saved.message || "已取消");
       } catch (e) {
         toast(String(e));
       }
