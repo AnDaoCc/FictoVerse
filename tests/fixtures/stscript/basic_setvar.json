@@ -1,0 +1,4 @@
+[
+  {"name": "set_name", "content": "/setvar chat greeting hello", "triggers": ["send"]},
+  {"name": "echo_input", "content": "/echo {{input}}", "triggers": ["receive"]}
+]

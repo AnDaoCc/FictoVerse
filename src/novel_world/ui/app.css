@@ -1,0 +1,5 @@
+@import "./tokens.css";
+@import "../web/static/style.css";
+@import "./components/index.css";
+@import "./layouts/index.css";
+@import "./pages/index.css";

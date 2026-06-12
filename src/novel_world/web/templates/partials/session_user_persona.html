@@ -1,0 +1,25 @@
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+{% if current_session and persona_update_url %}
+  <details class="persona-panel">
+    <summary class="label-with-help">
+      <span>{{ t('user_persona.panel_title') }}</span>{{ help_tip('help.user_persona.panel') }}
+    </summary>
+    <p class="hint persona-god-hint">{{ t('user_persona.god_mode_hint') }}</p>
+    <form method="post" action="{{ persona_update_url }}" class="persona-form compact-form">
+      {% if world_id is defined and world_id %}
+        <input type="hidden" name="world_id" value="{{ world_id }}" />
+      {% endif %}
+      {% if character_id is defined and character_id %}
+        <input type="hidden" name="character_id" value="{{ character_id }}" />
+      {% endif %}
+      <label>{{ label_with_help('roleplay.persona_name', 'help.roleplay.persona_name') }}
+        <input name="persona_name" value="{{ user_persona.name or '' }}" placeholder="{{ t('roleplay.persona_name_ph') }}" />
+      </label>
+      <label>{{ label_with_help('roleplay.persona_desc', 'help.roleplay.persona_desc') }}
+        <textarea name="persona_description" rows="2" placeholder="{{ t('roleplay.persona_desc_ph') }}">{{ user_persona.description or '' }}</textarea>
+      </label>
+      <button type="submit" class="ghost">{{ t('roleplay.save_persona') }}</button>
+    </form>
+  </details>
+{% endif %}

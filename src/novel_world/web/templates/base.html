@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="{{ html_lang or locale or 'zh-CN' }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title or t('app.title') }}</title>
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("nw-theme");
+          document.documentElement.dataset.theme = saved === "light" ? "light" : "dark";
+        } catch (e) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+      try {
+        if (localStorage.getItem("nw-nav-sidebar-collapsed") === "1") {
+          document.documentElement.classList.add("nav-sidebar-collapsed-boot");
+        }
+      } catch (e) { /* ignore */ }
+    </script>
+    <link rel="stylesheet" href="/static/dist/app.css" />
+    <link rel="stylesheet" href="/static/avatar_crop.css" />
+  </head>
+  <body>
+    <div class="ambient-orb ambient-orb-a"></div>
+    <div class="ambient-orb ambient-orb-b"></div>
+    <div class="app-shell">
+      <aside class="sidebar" id="nav_sidebar">
+        <div class="brand">
+          <div class="brand-mark">NW</div>
+          <div class="brand-text">
+            <div class="brand-title">{{ t('app.title') }}</div>
+            <div class="brand-sub">{{ t('app.subtitle') }}</div>
+          </div>
+          <button type="button" class="sidebar-inline-toggle" id="nav_sidebar_toggle" aria-expanded="true" aria-label="{{ t('sidebar.collapse_nav') }}">‹</button>
+        </div>
+        <nav class="nav">
+          <div class="nav-group-label">{{ t('nav.group_core') }}</div>
+          <a href="/chat" class="nav-item {% if active_nav == 'chat' %}active{% endif %}">
+            <span class="nav-ico">✎</span><span>{{ t('nav.chat') }}</span>
+          </a>
+          <a href="/group-chat" class="nav-item {% if active_nav == 'group_chat' %}active{% endif %}">
+            <span class="nav-ico">☷</span><span>{{ t('nav.group_chat') }}</span>
+          </a>
+          <a href="/worlds" class="nav-item {% if active_nav == 'worlds' %}active{% endif %}">
+            <span class="nav-ico">◇</span><span>{{ t('nav.worlds') }}</span>
+          </a>
+          <div class="nav-divider"></div>
+          <div class="nav-group-label">{{ t('nav.group_tools') }}</div>
+          <a href="/settings" class="nav-item {% if active_nav == 'settings' %}active{% endif %}">
+            <span class="nav-ico">⚙</span><span>{{ t('nav.settings') }}</span>
+          </a>
+          <a href="/guide" class="nav-item {% if active_nav == 'guide' %}active{% endif %}">
+            <span class="nav-ico">?</span><span>{{ t('nav.guide') }}</span>
+          </a>
+        </nav>
+        {% if world_name %}
+          <div class="sidebar-world">
+            <div class="sidebar-world-label">{{ t('sidebar.current_world') }}</div>
+            <div class="sidebar-world-name">{{ world_name }}</div>
+          </div>
+        {% endif %}
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <div class="topbar-crumb-wrap">
+            <div class="topbar-crumb">
+              {% if active_nav == 'chat' %}<span class="crumb-strong">{{ t('nav.chat') }}</span>
+              {% elif active_nav == 'group_chat' %}<span class="crumb-strong">{{ t('nav.group_chat') }}</span>
+              {% elif active_nav == 'roleplay' %}<span class="crumb-strong">{{ t('roleplay.title') }}</span>
+              {% elif active_nav == 'worlds' %}<span class="crumb-strong">{{ t('nav.worlds') }}</span>
+              {% elif active_nav == 'settings' %}<span class="crumb-strong">{{ t('nav.settings') }}</span>
+              {% elif active_nav == 'guide' %}<span class="crumb-strong">{{ t('nav.guide') }}</span>
+              {% else %}<span class="crumb-strong">{{ t('app.title') }}</span>{% endif %}
+              {% if world_name %}<span class="crumb-sep">/</span><span>{{ world_name }}</span>{% endif %}
+            </div>
+            {% block page_subtitle %}{% endblock %}
+          </div>
+          <div class="topbar-actions">
+            <button type="button" id="theme_toggle" class="theme-toggle" title="{{ t('common.theme_toggle') }}" aria-label="{{ t('common.theme_toggle') }}">
+              <span class="ico-moon">☾</span><span class="ico-sun">☀</span>
+            </button>
+          </div>
+        </div>
+        <div id="toast_root" class="toast-root" aria-live="polite"></div>
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+    <script src="/static/marked.min.js"></script>
+    <script>window.__I18N__ = {{ i18n_js | tojson }};</script>
+    <script>window.__USER_PREFS__ = {{ (user_prefs or {}) | tojson }};</script>
+    <script>window.__DISPLAY_SCRIPTS__ = {{ (display_scripts or []) | tojson }};</script>
+    {% for mod_asset in enabled_mod_assets or [] %}
+      {% for css_file in mod_asset.css %}
+    <link rel="stylesheet" href="/mods/{{ mod_asset.id }}/{{ css_file }}" />
+      {% endfor %}
+    {% endfor %}
+    <script src="/static/mod_runtime.js"></script>
+    {% for mod_asset in enabled_mod_assets or [] %}
+      {% for js_file in mod_asset.js %}
+    <script src="/mods/{{ mod_asset.id }}/{{ js_file }}"></script>
+      {% endfor %}
+    {% endfor %}
+    <script src="/static/ui_controls.js"></script>
+    <script src="/static/help_tips.js"></script>
+    <script src="/static/sidebar_layout.js"></script>
+    <script src="/static/tts_player.js"></script>
+    <script src="/static/media_tools.js"></script>
+    <script src="/static/app.js"></script>
+    <script src="/static/dist/app.js"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

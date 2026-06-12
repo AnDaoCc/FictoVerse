@@ -1,0 +1,13 @@
+{% from "partials/help_tip.html" import help_tip %}
+
+{% macro form_field(label, help_key=None, hint=None) %}
+<div class="form-field">
+  <div class="form-field__label">
+    {% if help_key %}{{ label }}{{ help_tip(help_key) }}{% else %}{{ label }}{% endif %}
+  </div>
+  {% if hint %}<p class="form-field__hint">{{ hint }}</p>{% endif %}
+  <div class="form-field__control">
+    {{ caller() }}
+  </div>
+</div>
+{% endmacro %}

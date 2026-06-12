@@ -1,0 +1,110 @@
+{% from "components/settings_group.html" import settings_group %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+{% call settings_group('settings-chat', t('settings.nav_chat'), t('settings.nav_chat_desc')) %}
+  <section class="card">
+    <h2>{{ t('settings.tts_section') }}</h2>
+    <form method="post" action="/settings/preferences" class="pref-form" id="tts_prefs_form">
+      <label class="switch-row">
+        <span>
+          <span class="switch-title">{{ t('settings.tts_enabled') }}{{ help_tip('help.settings.tts_enabled') }}</span>
+          <span class="hint">{{ t('settings.tts_enabled_hint') }}</span>
+        </span>
+        <input type="checkbox" name="tts_enabled" value="true" {% if user_prefs.tts_enabled %}checked{% endif %} onchange="this.form.submit()" />
+      </label>
+      <label class="switch-row">
+        <span>
+          <span class="switch-title">{{ t('settings.tts_auto_play') }}{{ help_tip('help.settings.tts_auto_play') }}</span>
+          <span class="hint">{{ t('settings.tts_auto_play_hint') }}</span>
+        </span>
+        <input type="checkbox" name="tts_auto_play" value="true" {% if user_prefs.tts_auto_play %}checked{% endif %} onchange="this.form.submit()" />
+      </label>
+      <label>{{ label_with_help('settings.tts_backend', 'help.settings.tts_backend') }}
+        <select name="tts_backend" id="tts_backend_select" onchange="this.form.submit()">
+          <option value="edge" {% if (user_prefs.tts_backend or 'edge') == 'edge' %}selected{% endif %}>{{ t('settings.tts_backend_edge') }}</option>
+          <option value="openai_compatible" {% if user_prefs.tts_backend in ('openai', 'openai_compatible') %}selected{% endif %}>{{ t('settings.tts_backend_openai_compatible') }}</option>
+          <option value="custom_http" {% if user_prefs.tts_backend == 'custom_http' %}selected{% endif %}>{{ t('settings.tts_backend_custom_http') }}</option>
+          <option value="browser" {% if user_prefs.tts_backend == 'browser' %}selected{% endif %}>{{ t('settings.tts_backend_browser') }}</option>
+        </select>
+      </label>
+      <label>{{ label_with_help('settings.tts_rate', 'help.settings.tts_rate') }}
+        <input type="number" name="tts_rate" min="0.5" max="2" step="0.1" value="{{ user_prefs.tts_rate or 1 }}" onchange="this.form.submit()" />
+      </label>
+      <label>{{ label_with_help('settings.tts_voice', 'help.settings.tts_voice') }}
+        <select name="tts_voice" id="tts_voice_select" onchange="this.form.submit()">
+          <option value="">{{ t('settings.tts_voice_default') }}</option>
+        </select>
+      </label>
+      {% set tts_custom = user_prefs.tts_custom if user_prefs.tts_custom is mapping else {} %}
+      <details class="advanced-block" {% if user_prefs.tts_backend in ('openai', 'openai_compatible', 'custom_http') %}open{% endif %}>
+        <summary>{{ t('settings.tts_advanced') }}</summary>
+        <p class="advanced-hint">{{ t('settings.tts_advanced_hint') }}</p>
+        <div id="tts_openai_fields" {% if user_prefs.tts_backend not in ('openai', 'openai_compatible') %}hidden{% endif %}>
+          <label>{{ label_with_help('settings.tts_openai_voice', 'help.settings.tts_openai_voice') }}
+            <select name="tts_openai_voice" id="tts_openai_voice_select" onchange="this.form.submit()">
+              {% for v in ['alloy', 'echo', 'fable', 'onyx', 'nova', 'shimmer'] %}
+                <option value="{{ v }}" {% if (user_prefs.tts_openai_voice or 'alloy') == v %}selected{% endif %}>{{ v }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>{{ label_with_help('settings.tts_openai_api_key', 'help.settings.tts_openai_api_key') }}
+            <input type="password" name="tts_openai_api_key" value="{{ user_prefs.tts_openai_api_key or '' }}" placeholder="sk-..." />
+          </label>
+          <label>{{ label_with_help('settings.tts_openai_base_url', 'help.settings.tts_openai_base_url') }}
+            <input type="text" name="tts_openai_base_url" value="{{ user_prefs.tts_openai_base_url or 'https://api.openai.com/v1' }}" />
+          </label>
+          <label>{{ label_with_help('settings.tts_openai_model', 'help.settings.tts_openai_model') }}
+            <input type="text" name="tts_openai_model" value="{{ user_prefs.tts_openai_model or 'tts-1' }}" placeholder="tts-1" />
+          </label>
+          <label>{{ label_with_help('settings.tts_openai_auth_style', 'help.settings.tts_openai_auth_style') }}
+            <select name="tts_openai_auth_style" onchange="this.form.submit()">
+              <option value="bearer" {% if (user_prefs.tts_openai_auth_style or 'bearer') == 'bearer' %}selected{% endif %}>Bearer</option>
+              <option value="api-key" {% if user_prefs.tts_openai_auth_style == 'api-key' %}selected{% endif %}>api-key</option>
+            </select>
+          </label>
+          <label>{{ label_with_help('settings.tts_openai_voices_json', 'help.settings.tts_openai_voices_json') }}
+            <textarea name="tts_openai_voices_json" rows="3" placeholder='[{"id":"alloy","name":"Alloy"}]'>{{ user_prefs.tts_openai_voices_json or '' }}</textarea>
+          </label>
+        </div>
+        <div id="tts_custom_fields" {% if user_prefs.tts_backend != 'custom_http' %}hidden{% endif %}>
+          <label>{{ label_with_help('settings.tts_custom_url', 'help.settings.tts_custom_url') }}
+            <input type="text" name="tts_custom_url" value="{{ tts_custom.get('url', '') }}" placeholder="http://127.0.0.1:7851/api/tts" />
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_method', 'help.settings.tts_custom_method') }}
+            <select name="tts_custom_method" onchange="this.form.submit()">
+              {% for m in ['POST', 'GET', 'PUT'] %}
+                <option value="{{ m }}" {% if (tts_custom.get('method') or 'POST') == m %}selected{% endif %}>{{ m }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_headers', 'help.settings.tts_custom_headers') }}
+            <textarea name="tts_custom_headers" rows="2" placeholder='{"Authorization":"Bearer YOUR_KEY"}'>{{ tts_custom.get('headers', {}) | tojson if tts_custom.get('headers') else '' }}</textarea>
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_body_template', 'help.settings.tts_custom_body_template') }}
+            <textarea name="tts_custom_body_template" rows="3" placeholder='{"text":"{{"{{"}}text{{"}}"}}","voice":"{{"{{"}}voice{{"}}"}}"}'>{{ tts_custom.get('body_template', '') }}</textarea>
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_response_mode', 'help.settings.tts_custom_response_mode') }}
+            <select name="tts_custom_response_mode" onchange="this.form.submit()">
+              {% for mode, label in [('binary', 'binary'), ('json_base64', 'json_base64'), ('json_url', 'json_url')] %}
+                <option value="{{ mode }}" {% if (tts_custom.get('response_mode') or 'binary') == mode %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_response_json_path', 'help.settings.tts_custom_response_json_path') }}
+            <input type="text" name="tts_custom_response_json_path" value="{{ tts_custom.get('response_json_path', '') }}" placeholder="data.audio" />
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_media_type', 'help.settings.tts_custom_media_type') }}
+            <input type="text" name="tts_custom_media_type" value="{{ tts_custom.get('media_type', 'audio/mpeg') }}" />
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_voices_json', 'help.settings.tts_custom_voices_json') }}
+            <textarea name="tts_custom_voices_json" rows="3" placeholder='[{"id":"default","name":"默认"}]'>{{ tts_custom.get('voices', []) | tojson if tts_custom.get('voices') else '' }}</textarea>
+          </label>
+          <label>{{ label_with_help('settings.tts_custom_voices_url', 'help.settings.tts_custom_voices_url') }}
+            <input type="text" name="tts_custom_voices_url" value="{{ tts_custom.get('voices_url', '') }}" placeholder="http://127.0.0.1:7851/api/voices" />
+          </label>
+        </div>
+      </details>
+      <button type="button" class="ghost" id="tts_preview_btn">{{ t('settings.tts_preview') }}</button>
+    </form>
+  </section>
+{% endcall %}

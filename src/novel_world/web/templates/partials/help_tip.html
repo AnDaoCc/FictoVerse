@@ -1,0 +1,18 @@
+{% macro help_tip(key) %}
+<span class="help-tip" tabindex="0" role="button" aria-label="{{ t(key) }}">
+  <span class="help-tip-mark">?</span>
+  <span class="help-tip-bubble">{{ t(key) }}</span>
+</span>
+{% endmacro %}
+
+{% macro label_with_help(label_key, help_key) %}
+<span class="label-with-help">
+  <span>{{ t(label_key) }}</span>{{ help_tip(help_key) }}
+</span>
+{% endmacro %}
+
+{% macro field_label_with_help(label_key, help_key) %}
+<span class="field-label label-with-help">
+  <span>{{ t(label_key) }}</span>{{ help_tip(help_key) }}
+</span>
+{% endmacro %}

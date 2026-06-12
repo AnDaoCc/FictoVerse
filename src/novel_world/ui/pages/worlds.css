@@ -1,0 +1,55 @@
+.worlds-create-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-elevated);
+  box-shadow: var(--shadow-soft);
+}
+
+.worlds-create-bar label {
+  flex: 1 1 180px;
+  margin-bottom: 0;
+  min-width: 140px;
+}
+
+.worlds-create-bar .worlds-create-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.worlds-create-advanced {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.worlds-page .bookshelf-section {
+  margin-top: var(--space-2);
+}
+
+.worlds-page .bookshelf-section h2 {
+  margin-bottom: var(--space-4);
+}
+
+.worlds-import-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+  border: 1px dashed var(--border);
+}
+
+@media (max-width: 720px) {
+  .worlds-create-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

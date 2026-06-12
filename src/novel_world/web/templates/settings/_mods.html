@@ -1,0 +1,85 @@
+{% from "components/settings_group.html" import settings_group %}
+{% from "partials/help_tip.html" import help_tip %}
+
+{% call settings_group('settings-mods', t('settings.nav_mods'), t('settings.mods_hint')) %}
+  <section class="card" id="mods_panel">
+    <h2>{{ t('settings.mods') }}{{ help_tip('help.settings.mods') }}</h2>
+    <p class="hint">{{ t('settings.mods_dir_hint') }} <code>{{ mods_dir }}</code></p>
+
+    <div class="mod-toolbar-web">
+      <form method="post" action="/settings/mods/install" enctype="multipart/form-data" class="inline-form">
+        <label class="ghost file-btn">
+          {{ t('settings.mods_install_zip') }}
+          <input type="file" name="file" accept=".zip" onchange="this.form.submit()" hidden />
+        </label>
+      </form>
+      <form method="post" action="/settings/mods/import-world" enctype="multipart/form-data" class="inline-form">
+        <label class="ghost file-btn">
+          {{ t('settings.mods_import_world') }}
+          <input type="file" name="file" accept=".zip,.nworld.zip" onchange="this.form.submit()" hidden />
+        </label>
+      </form>
+    </div>
+
+    {% if mods|length == 0 %}
+      <div class="empty">{{ t('settings.mods_empty') }}</div>
+    {% else %}
+      <form method="post" action="/settings/extensions" class="pref-form">
+        <ul class="simple-list mod-list-web">
+          {% set disabled_ext = user_prefs.disabled_extensions or [] %}
+          {% for mod in mods %}
+            <li class="mod-item-web mod-status-{{ mod.status }}">
+              <div class="mod-item-head">
+                <span class="switch-title">{{ mod.name or mod.id }}</span>
+                <span class="mod-type-badge">{% if mod.type == 'python_hooks' %}{{ t('settings.mod_type_python_hooks') }}{% elif mod.type == 'frontend' %}{{ t('settings.mod_type_frontend') }}{% elif mod.type == 'composite' %}{{ t('settings.mod_type_composite') }}{% elif mod.type == 'world_content' %}{{ t('settings.mod_type_world_content') }}{% else %}{{ mod.type }}{% endif %}</span>
+                {% if mod.version %}<span class="hint">v{{ mod.version }}</span>{% endif %}
+              </div>
+              {% if mod.description %}<p class="hint mod-desc">{{ mod.description }}</p>{% endif %}
+              {% if mod.author %}<p class="hint">{{ t('settings.mod_author') }} {{ mod.author }}</p>{% endif %}
+              {% if mod.status == 'ok' or mod.status == 'disabled' %}
+                <label class="switch-row">
+                  <span class="hint">
+                    {% if mod.id not in disabled_ext and mod.status != 'disabled' %}{{ t('settings.ext_status_ok') }}{% else %}{{ t('settings.ext_status_disabled') }}{% endif %}
+                  </span>
+                  <input type="checkbox" name="enabled" value="{{ mod.id }}"
+                    {% if mod.id not in disabled_ext and mod.status != 'disabled' %}checked{% endif %} />
+                </label>
+              {% elif mod.status == 'incompatible' %}
+                <span class="hint err-text">{{ t('settings.mod_status_incompatible') }}: {{ mod.error }}</span>
+              {% elif mod.status == 'error' %}
+                <span class="hint err-text">{{ t('settings.ext_status_error') }}: {{ mod.error }}</span>
+              {% else %}
+                <span class="hint">{{ mod.status }}</span>
+              {% endif %}
+              {% if mod.type == 'world_content' and mod.pack_file %}
+                <span class="hint">{{ mod.pack_file }}</span>
+              {% endif %}
+              {% if not mod.builtin and mod.source == 'mods' and mod.status != 'error' %}
+                <button type="button" class="danger ghost small btn-uninstall-mod" data-mod-id="{{ mod.id }}">{{ t('settings.mods_uninstall') }}</button>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+        <button type="submit" class="ghost">{{ t('common.save') }}</button>
+      </form>
+      <form id="mod_uninstall_form" method="post" action="/settings/mods/uninstall" hidden>
+        <input type="hidden" name="mod_id" id="mod_uninstall_id" value="" />
+      </form>
+    {% endif %}
+    <p class="hint">{{ t('settings.extensions_reload_hint') }}</p>
+
+    <details class="advanced-block hook-reference">
+      <summary>{{ t('settings.hook_reference') }}</summary>
+      <ul class="hook-ref-list">
+        {% for hook in hook_catalog %}
+          <li>
+            <code>{{ hook.name }}</code>
+            <span class="hint">[{{ hook.scope }}] {{ hook.description }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
+    <div id="mods_settings_hook_panel" class="mods-hook-panel"></div>
+    <p class="hint">{{ t('settings.sync_placeholder') }}</p>
+  </section>
+{% endcall %}

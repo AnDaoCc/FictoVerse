@@ -1,0 +1,23 @@
+<div class="tab-panel" data-panel="saves">
+  <section class="card book-page-panel">
+    <h2>{{ t('world_detail.saves') }}</h2>
+    <form method="post" action="/worlds/{{ world.id }}/saves/create" class="row save-create-row">
+      <span class="save-field">{{ label_with_help('world_detail.slot', 'help.world_detail.slot') }}<input name="slot_index" type="number" min="0" placeholder="0" required /></span>
+      <span class="save-field">{{ label_with_help('world_detail.save_label', 'help.world_detail.save_label') }}<input name="label" /></span>
+      <button type="submit">{{ t('world_detail.create_save') }}{{ help_tip('help.world_detail.create_save') }}</button>
+    </form>
+    <ul class="simple-list">
+      {% for s in saves %}
+        <li>
+          [{{ s.slot_index }}] {{ s.label }}
+          <form method="post" action="/worlds/{{ world.id }}/saves/load" style="display:inline">
+            <input type="hidden" name="save_id" value="{{ s.id }}" />
+            <button type="submit">{{ t('world_detail.load_save') }}{{ help_tip('help.world_detail.load_save') }}</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="muted">{{ t('world_detail.no_saves') }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  </div>

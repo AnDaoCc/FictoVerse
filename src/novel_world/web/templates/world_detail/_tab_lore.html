@@ -1,0 +1,163 @@
+<div class="tab-panel" data-panel="lore">
+  <section class="card book-page-panel">
+    <h2>{{ label_with_help('world_detail.lore_title', 'help.world_detail.lore_title') }}</h2>
+    <p class="subtitle card-lead">{{ t('world_detail.lore_hint') }}</p>
+
+    <div class="mod-toolbar-web lore-st-toolbar">
+      <form method="post" action="/worlds/{{ world.id }}/lore/import-st" enctype="multipart/form-data" class="inline-form lore-import-st-form">
+        <div class="grid2">
+          <label>{{ t('world_detail.lore_scope') }}
+            <select name="scope" id="st_import_scope">
+              <option value="world">{{ t('world_detail.lore_scope_world') }}</option>
+              <option value="character">{{ t('world_detail.lore_scope_character') }}</option>
+            </select>
+          </label>
+          <label>{{ t('world_detail.lore_character') }}
+            <select name="character_id" id="st_import_character">
+              <option value="">—</option>
+              {% for c in characters %}
+                <option value="{{ c.id }}">{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+        <label>{{ t('world_detail.st_import_mode') }}
+          <select name="mode">
+            <option value="merge">{{ t('world_detail.st_import_merge') }}</option>
+            <option value="replace">{{ t('world_detail.st_import_replace') }}</option>
+          </select>
+        </label>
+        <label class="ghost file-btn">
+          {{ t('world_detail.st_import_wi') }}
+          <input type="file" name="file" accept=".json" required hidden onchange="this.form.submit()" />
+        </label>
+      </form>
+      <a class="ghost link-btn" href="/api/worlds/{{ world.id }}/lore/export-st?scope=world">{{ t('world_detail.st_export_wi_world') }}</a>
+    </div>
+    <p class="hint">{{ t('world_detail.st_wi_hint') }}</p>
+
+    <form method="post" action="/worlds/{{ world.id }}/lore/create" class="lore-form">
+      <div class="grid2">
+        <label>{{ label_with_help('world_detail.lore_scope', 'help.world_detail.lore_scope') }}
+          <select name="scope">
+            <option value="world">{{ t('world_detail.lore_scope_world') }}</option>
+            <option value="character">{{ t('world_detail.lore_scope_character') }}</option>
+          </select>
+        </label>
+        <label>{{ label_with_help('world_detail.lore_character', 'help.world_detail.lore_character') }}
+          <select name="character_id">
+            <option value="">—</option>
+            {% for c in characters %}
+              <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>{{ label_with_help('world_detail.lore_keys', 'help.world_detail.lore_keys') }}<input name="keys" placeholder="{{ t('world_detail.lore_keys_ph') }}" /></label>
+      <label>{{ label_with_help('world_detail.lore_content', 'help.world_detail.lore_content') }}<textarea name="content" rows="4" required></textarea></label>
+      <div class="grid2">
+        <label>{{ label_with_help('world_detail.lore_position', 'help.world_detail.lore_position') }}
+          <select name="position">
+            <option value="before_main">{{ t('world_detail.lore_pos_before_main') }}</option>
+            <option value="after_char">{{ t('world_detail.lore_pos_after_char') }}</option>
+            <option value="before_examples">{{ t('world_detail.lore_pos_before_examples') }}</option>
+            <option value="at_depth">{{ t('world_detail.lore_pos_at_depth') }}</option>
+          </select>
+        </label>
+        <label>{{ label_with_help('world_detail.lore_depth', 'help.world_detail.lore_depth') }}<input name="depth" type="number" value="4" min="0" /></label>
+      </div>
+      <div class="grid2">
+        <label>{{ label_with_help('world_detail.lore_priority', 'help.world_detail.lore_priority') }}<input name="priority" type="number" value="0" /></label>
+        <label>{{ label_with_help('world_detail.lore_order', 'help.world_detail.lore_order') }}<input name="insertion_order" type="number" value="0" /></label>
+      </div>
+      <div class="row lore-flags">
+        <label>{{ label_with_help('world_detail.lore_constant', 'help.world_detail.lore_constant') }}<input type="checkbox" name="constant" value="1" /></label>
+        <label class="label-with-help"><input type="checkbox" name="selective" value="1" checked /> <span>{{ t('world_detail.lore_selective') }}</span>{{ help_tip('help.world_detail.lore_selective') }}</label>
+        <label class="label-with-help"><input type="checkbox" name="recursive" value="1" /> <span>{{ t('world_detail.lore_recursive') }}</span>{{ help_tip('help.world_detail.lore_recursive') }}</label>
+        <label class="label-with-help"><input type="checkbox" name="enabled" value="1" checked /> <span>{{ t('world_detail.lore_enabled') }}</span>{{ help_tip('help.world_detail.lore_enabled') }}</label>
+      </div>
+      <div class="grid2">
+        <label>{{ label_with_help('world_detail.lore_probability', 'help.world_detail.lore_probability') }}<input name="probability" type="number" min="0" max="1" step="0.05" value="1" /></label>
+        <label>{{ label_with_help('world_detail.lore_group', 'help.world_detail.lore_group') }}<input name="lore_group" /></label>
+        <label>{{ label_with_help('world_detail.lore_group_weight', 'help.world_detail.lore_group_weight') }}<input name="group_weight" type="number" value="0" /></label>
+        <label>{{ label_with_help('world_detail.lore_cooldown', 'help.world_detail.lore_cooldown') }}<input name="cooldown" type="number" min="0" value="0" /></label>
+        <label>{{ label_with_help('world_detail.lore_sticky', 'help.world_detail.lore_sticky') }}<input name="sticky" type="number" min="0" value="0" /></label>
+        <label>{{ label_with_help('world_detail.lore_scan_depth', 'help.world_detail.lore_scan_depth') }}<input name="scan_depth" type="number" min="0" value="0" /></label>
+      </div>
+      <label>{{ label_with_help('world_detail.lore_character_filter', 'help.world_detail.lore_character_filter') }}<input name="character_filter" placeholder="{{ t('world_detail.lore_keys_ph') }}" /></label>
+      <div class="row lore-flags">
+        <label><input type="checkbox" name="group_override" value="1" /> {{ t('world_detail.lore_group_override') }}</label>
+        <label><input type="checkbox" name="use_group_scoring" value="1" /> {{ t('world_detail.lore_use_group_scoring') }}</label>
+      </div>
+      <label>{{ label_with_help('world_detail.lore_comment', 'help.world_detail.lore_comment') }}<input name="comment" /></label>
+      <button type="submit" class="primary">{{ t('world_detail.lore_add') }}{{ help_tip('help.world_detail.lore_add') }}</button>
+    </form>
+
+    <ul class="lore-list simple-list">
+      {% for entry in lore_entries %}
+        <li class="lore-item">
+          <details>
+            <summary>
+              <span class="lore-keys">{{ entry.keys | join(', ') if entry.keys else t('world_detail.lore_constant') }}</span>
+              <span class="muted">· {{ entry.scope }} · {{ entry.source }}</span>
+            </summary>
+            {% if entry.source == 'character_book' %}
+              <p class="hint">{{ t('world_detail.lore_card_readonly') }}</p>
+              <pre class="lore-content-preview">{{ entry.content[:500] }}{% if entry.content|length > 500 %}…{% endif %}</pre>
+            {% else %}
+              <form method="post" action="/worlds/{{ world.id }}/lore/{{ entry.id }}/update" class="lore-form">
+                <input type="hidden" name="scope" value="{{ entry.scope }}" />
+                <input type="hidden" name="character_id" value="{{ entry.character_id }}" />
+                <label>{{ t('world_detail.lore_keys') }}<input name="keys" value="{{ entry.keys | join(', ') }}" /></label>
+                <label>{{ t('world_detail.lore_content') }}<textarea name="content" rows="4" required>{{ entry.content }}</textarea></label>
+                <div class="grid2">
+                  <label>{{ t('world_detail.lore_position') }}
+                    <select name="position">
+                      <option value="before_main" {% if entry.position == 'before_main' %}selected{% endif %}>{{ t('world_detail.lore_pos_before_main') }}</option>
+                      <option value="after_char" {% if entry.position == 'after_char' %}selected{% endif %}>{{ t('world_detail.lore_pos_after_char') }}</option>
+                      <option value="before_examples" {% if entry.position == 'before_examples' %}selected{% endif %}>{{ t('world_detail.lore_pos_before_examples') }}</option>
+                      <option value="at_depth" {% if entry.position == 'at_depth' %}selected{% endif %}>{{ t('world_detail.lore_pos_at_depth') }}</option>
+                    </select>
+                  </label>
+                  <label>{{ t('world_detail.lore_depth') }}<input name="depth" type="number" value="{{ entry.depth }}" /></label>
+                </div>
+                <div class="grid2">
+                  <label>{{ t('world_detail.lore_priority') }}<input name="priority" type="number" value="{{ entry.priority }}" /></label>
+                  <label>{{ t('world_detail.lore_order') }}<input name="insertion_order" type="number" value="{{ entry.insertion_order }}" /></label>
+                </div>
+                <div class="row lore-flags">
+                  <label><input type="checkbox" name="constant" value="1" {% if entry.constant %}checked{% endif %} /> {{ t('world_detail.lore_constant') }}</label>
+                  <label><input type="checkbox" name="selective" value="1" {% if entry.selective %}checked{% endif %} /> {{ t('world_detail.lore_selective') }}</label>
+                  <label><input type="checkbox" name="recursive" value="1" {% if entry.recursive %}checked{% endif %} /> {{ t('world_detail.lore_recursive') }}</label>
+                  <label><input type="checkbox" name="enabled" value="1" {% if entry.enabled %}checked{% endif %} /> {{ t('world_detail.lore_enabled') }}</label>
+                </div>
+                <div class="grid2">
+                  <label>{{ t('world_detail.lore_probability') }}<input name="probability" type="number" min="0" max="1" step="0.05" value="{{ entry.probability }}" /></label>
+                  <label>{{ t('world_detail.lore_group') }}<input name="lore_group" value="{{ entry.lore_group }}" /></label>
+                  <label>{{ t('world_detail.lore_group_weight') }}<input name="group_weight" type="number" value="{{ entry.group_weight }}" /></label>
+                  <label>{{ t('world_detail.lore_cooldown') }}<input name="cooldown" type="number" min="0" value="{{ entry.cooldown }}" /></label>
+                  <label>{{ t('world_detail.lore_sticky') }}<input name="sticky" type="number" min="0" value="{{ entry.sticky }}" /></label>
+                  <label>{{ t('world_detail.lore_scan_depth') }}<input name="scan_depth" type="number" min="0" value="{{ entry.scan_depth }}" /></label>
+                </div>
+                <label>{{ t('world_detail.lore_character_filter') }}<input name="character_filter" value="{{ entry.character_filter | join(', ') }}" /></label>
+                <div class="row lore-flags">
+                  <label><input type="checkbox" name="group_override" value="1" {% if entry.group_override %}checked{% endif %} /> {{ t('world_detail.lore_group_override') }}</label>
+                  <label><input type="checkbox" name="use_group_scoring" value="1" {% if entry.use_group_scoring %}checked{% endif %} /> {{ t('world_detail.lore_use_group_scoring') }}</label>
+                </div>
+                <label>{{ t('world_detail.lore_comment') }}<input name="comment" value="{{ entry.comment }}" /></label>
+                <div class="row">
+                  <button type="submit" class="primary">{{ t('common.save') }}</button>
+                </div>
+              </form>
+              <form method="post" action="/worlds/{{ world.id }}/lore/{{ entry.id }}/delete" onsubmit="return confirm('{{ t('common.delete') }}？');">
+                <button type="submit" class="danger">{{ t('common.delete') }}</button>
+              </form>
+            {% endif %}
+          </details>
+        </li>
+      {% else %}
+        <li class="muted">{{ t('world_detail.lore_empty') }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  </div>

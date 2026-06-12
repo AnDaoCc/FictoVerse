@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% set title = "发生错误" %}
+{% block content %}
+<div class="page">
+  <section class="card">
+    <h1>发生错误</h1>
+    <div class="error-box">{{ message }}</div>
+    <a class="btn" href="/chat">返回聊天</a>
+  </section>
+</div>
+{% endblock %}

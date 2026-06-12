@@ -1,0 +1,22 @@
+<div class="tab-panel" data-panel="docs">
+  <section class="card book-page-panel">
+    <h2>{{ label_with_help('world_detail.upload_docs', 'help.world_detail.upload_docs') }}</h2>
+    <p class="subtitle card-lead">{{ t('world_detail.upload_docs_hint') }}</p>
+    <form method="post" action="/worlds/{{ world.id }}/documents/upload" enctype="multipart/form-data" class="row">
+      <input type="file" name="file" accept=".txt,.docx" required />
+      <button type="submit">{{ t('world_detail.upload_docs') }}</button>
+    </form>
+    <ul class="simple-list">
+      {% for doc in world_documents %}
+        <li>
+          {{ doc.filename }}
+          <form method="post" action="/worlds/{{ world.id }}/documents/{{ doc.id }}/delete" style="display:inline" onsubmit='return confirm("{{ t('common.delete') }}？");'>
+            <button type="submit" class="danger">{{ t('common.delete') }}</button>
+          </form>
+        </li>
+      {% else %}
+        <li class="muted">{{ t('world_detail.no_docs') }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  </div>

@@ -1,0 +1,9 @@
+{% macro settings_group(id, title, desc=None) %}
+<section class="settings-group" id="{{ id }}">
+  <div class="settings-group__head">
+    <h2 class="settings-group__title">{{ title }}</h2>
+    {% if desc %}<p class="settings-group__desc">{{ desc }}</p>{% endif %}
+  </div>
+  {{ caller() }}
+</section>
+{% endmacro %}

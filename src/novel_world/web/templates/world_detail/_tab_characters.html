@@ -1,0 +1,140 @@
+<div class="tab-panel" data-panel="characters">
+  <section class="card book-page-panel">
+    <h2>{{ t('world_detail.characters') }}</h2>
+    <form method="post" action="/worlds/{{ world.id }}/characters/create" class="character-form compact-form">
+      <div class="grid2">
+        <label>{{ label_with_help('world_detail.char_name', 'help.world_detail.char_name') }}<input name="name" required /></label>
+        <label>{{ label_with_help('world_detail.char_role', 'help.world_detail.char_role') }}
+          <select name="role">
+            {% for opt in character_role_options() %}
+              <option value="{{ opt.value }}">{{ opt.label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+      <label>{{ label_with_help('world_detail.char_summary', 'help.world_detail.char_summary') }}<textarea name="summary" rows="2"></textarea></label>
+      <div class="grid2">
+        <label>{{ label_with_help('world_detail.char_personality', 'help.world_detail.char_personality') }}<textarea name="personality" rows="2"></textarea></label>
+        <label>{{ label_with_help('world_detail.char_appearance', 'help.world_detail.char_appearance') }}<textarea name="appearance" rows="2"></textarea></label>
+      </div>
+      <label>{{ label_with_help('world_detail.char_background', 'help.world_detail.char_background') }}<textarea name="background" rows="2"></textarea></label>
+      <label>{{ label_with_help('world_detail.char_attributes', 'help.world_detail.char_attributes') }}<textarea name="attributes_json" rows="2">{}</textarea></label>
+      <button type="submit">{{ t('world_detail.add_character') }}{{ help_tip('help.world_detail.add_character') }}</button>
+    </form>
+
+    <form method="post" action="/worlds/{{ world.id }}/characters/import-card" enctype="multipart/form-data" class="card-import-form">
+      <label class="upload-btn">{{ label_with_help('world_detail.import_card', 'help.world_detail.import_card') }}
+        <input type="file" name="file" accept=".json,.png" required hidden />
+      </label>
+      <span class="hint">{{ t('world_detail.import_card_hint') }}</span>
+    </form>
+
+    <div class="character-list">
+      {% for c in characters %}
+        <details class="character-card">
+          <summary>
+            {% if c.metadata.get('avatar_path') %}
+              <img class="char-list-avatar" src="/api/worlds/{{ world.id }}/characters/{{ c.id }}/avatar" alt="" />
+            {% endif %}
+            <strong>{{ c.name }}</strong> <span class="muted">（{{ role_label(c.role) }}）</span>
+          </summary>
+          <div class="char-card-actions">
+            <a class="primary link-btn" href="/worlds/{{ world.id }}/roleplay/{{ c.id }}/chat">{{ t('roleplay.chat_with') }}{{ help_tip('help.world_detail.chat_with') }}</a>
+            <a class="link-btn" href="/api/worlds/{{ world.id }}/characters/{{ c.id }}/card/export?format=json">{{ t('world_detail.export_card_json') }}{{ help_tip('help.world_detail.export_card_json') }}</a>
+            <a class="link-btn" href="/api/worlds/{{ world.id }}/characters/{{ c.id }}/card/export?format=png">{{ t('world_detail.export_card_png') }}{{ help_tip('help.world_detail.export_card_png') }}</a>
+          </div>
+          <form method="post" action="/worlds/{{ world.id }}/characters/{{ c.id }}/import-card" enctype="multipart/form-data" class="card-import-inline">
+            <label class="upload-btn ghost-upload">{{ label_with_help('world_detail.import_card', 'help.world_detail.import_card') }}
+              <input type="file" name="file" accept=".json,.png" required hidden onchange="this.form.submit()" />
+            </label>
+          </form>
+          <label class="upload-btn ghost-upload avatar-crop-trigger">{{ label_with_help('world_detail.upload_avatar', 'help.world_detail.upload_avatar') }}
+            <input
+              type="file"
+              accept=".png,.jpg,.jpeg,.webp,.gif"
+              hidden
+              data-avatar-crop
+              data-upload-url="/api/worlds/{{ world.id }}/characters/{{ c.id }}/avatar"
+              data-redirect-url="/worlds/{{ world.id }}?tab=characters"
+            />
+          </label>
+          <form method="post" action="/worlds/{{ world.id }}/characters/{{ c.id }}/update" class="character-form">
+            <div class="grid2">
+              <label>{{ label_with_help('world_detail.char_name', 'help.world_detail.char_name') }}<input name="name" value="{{ c.name }}" required /></label>
+              <label>{{ label_with_help('world_detail.char_role', 'help.world_detail.char_role') }}
+                <select name="role">
+                  {% for opt in character_role_options() %}
+                    <option value="{{ opt.value }}" {% if c.role == opt.value or role_label(c.role) == opt.label %}selected{% endif %}>{{ opt.label }}</option>
+                  {% endfor %}
+                </select>
+              </label>
+            </div>
+            <label>{{ label_with_help('world_detail.char_summary', 'help.world_detail.char_summary') }}<textarea name="summary" rows="2">{{ c.profile.get('summary', '') }}</textarea></label>
+            <div class="grid2">
+              <label>{{ label_with_help('world_detail.char_personality', 'help.world_detail.char_personality') }}<textarea name="personality" rows="2">{{ c.profile.get('personality', '') }}</textarea></label>
+              <label>{{ label_with_help('world_detail.char_appearance', 'help.world_detail.char_appearance') }}<textarea name="appearance" rows="2">{{ c.profile.get('appearance', '') }}</textarea></label>
+            </div>
+            <label>{{ label_with_help('world_detail.char_background', 'help.world_detail.char_background') }}<textarea name="background" rows="2">{{ c.profile.get('background', '') }}</textarea></label>
+            <label>{{ label_with_help('world_detail.char_tts_voice', 'help.world_detail.char_tts_voice') }}
+              <select name="tts_voice" class="char-tts-voice-select" data-selected="{{ c.metadata.get('tts_voice', '') if c.metadata else '' }}">
+                <option value="">{{ t('settings.tts_voice_default') }}</option>
+              </select>
+            </label>
+            <details class="advanced-block">
+              <summary>{{ label_with_help('world_detail.card_advanced', 'help.world_detail.card_advanced') }}</summary>
+              {% if c.metadata.get('card', {}).get('character_book') %}
+              <p class="hint lore-sync-hint">{{ t('world_detail.lore_from_card_hint') }}</p>
+              {% endif %}
+              <label>{{ label_with_help('world_detail.card_scenario', 'help.world_detail.card_scenario') }}<textarea name="scenario" rows="2">{{ c.profile.get('scenario', '') }}</textarea></label>
+              <label>{{ label_with_help('world_detail.card_first_mes', 'help.world_detail.card_first_mes') }}<textarea name="first_mes" rows="2">{{ c.profile.get('first_mes', '') }}</textarea></label>
+              <label>{{ label_with_help('world_detail.card_mes_example', 'help.world_detail.card_mes_example') }}<textarea name="mes_example" rows="4">{{ c.profile.get('mes_example', '') }}</textarea></label>
+              <label>{{ label_with_help('world_detail.card_post_history', 'help.world_detail.card_post_history') }}<textarea name="post_history_instructions" rows="2">{{ c.profile.get('post_history_instructions', '') }}</textarea></label>
+            </details>
+            <label>{{ label_with_help('world_detail.char_attributes', 'help.world_detail.char_attributes') }}<textarea name="attributes_json" rows="2">{{ c.attributes | tojson }}</textarea></label>
+
+            <div class="relationships-editor" data-rel-editor>
+              <div class="field-label label-with-help"><span>{{ t('world_detail.relationships') }}</span>{{ help_tip('help.world_detail.relationships') }}</div>
+              <div class="rel-rows">
+                {% for rel in c.metadata.get('relationships', []) %}
+                  <div class="rel-row">
+                    <select class="rel-target">
+                      {% for other in characters if other.id != c.id %}
+                        <option value="{{ other.name }}" {% if other.name == rel.target %}selected{% endif %}>{{ other.name }}</option>
+                      {% endfor %}
+                    </select>
+                    <input class="rel-type" value="{{ rel.type }}" placeholder="{{ t('world_detail.rel_type_ph') }}" />
+                    <input class="rel-note" value="{{ rel.note }}" placeholder="{{ t('world_detail.rel_note_ph') }}" />
+                    <button type="button" class="icon-danger rel-remove" title="{{ t('common.delete') }}">×</button>
+                  </div>
+                {% endfor %}
+              </div>
+              <template class="rel-row-tpl">
+                <div class="rel-row">
+                  <select class="rel-target">
+                    {% for other in characters if other.id != c.id %}
+                      <option value="{{ other.name }}">{{ other.name }}</option>
+                    {% endfor %}
+                  </select>
+                  <input class="rel-type" placeholder="{{ t('world_detail.rel_type_ph') }}" />
+                  <input class="rel-note" placeholder="{{ t('world_detail.rel_note_ph') }}" />
+                  <button type="button" class="icon-danger rel-remove" title="{{ t('common.delete') }}">×</button>
+                </div>
+              </template>
+              <button type="button" class="ghost rel-add">+ {{ t('world_detail.rel_add') }}{{ help_tip('help.world_detail.rel_add') }}</button>
+              <input type="hidden" name="relationships_json" value="[]" />
+            </div>
+
+            <div class="row">
+              <button type="submit" class="primary">{{ t('world_detail.save_character') }}{{ help_tip('help.world_detail.save_character') }}</button>
+            </div>
+          </form>
+          <form method="post" action="/worlds/{{ world.id }}/characters/{{ c.id }}/delete" onsubmit='return confirm("{{ t('world_detail.delete_character_confirm') }}");'>
+            <button type="submit" class="danger">{{ t('world_detail.delete_character') }}</button>
+          </form>
+        </details>
+      {% else %}
+        <div class="empty">{{ t('world_detail.no_characters') }}</div>
+      {% endfor %}
+    </div>
+  </section>
+  </div>

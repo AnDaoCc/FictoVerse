@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% set title = t('nav.chat') %}
+{% from "partials/help_tip.html" import help_tip %}
+{% block page_subtitle %}<p class="topbar-subtitle">{% if world %}{{ t('chat.start_hint_world') }}{% else %}{{ t('chat.start_hint_daily') }}{% endif %}</p>{% endblock %}
+{% block content %}
+<div class="chat-layout{% if world %} world-chat{% endif %}">
+  <aside class="chat-sidebar" id="chat_sidebar">
+    {% set show_world_link = true %}
+    {% set show_session_config = current_session %}
+    {% include "partials/chat_sidebar.html" %}
+  </aside>
+
+  <section class="chat-main {% if session_background_url %}has-session-bg{% endif %}"
+           {% if session_background_url %}style="--session-bg: url('{{ session_background_url }}');"{% endif %}>
+    <button type="button" class="sidebar-inline-toggle sidebar-inline-toggle--expand" id="chat_sidebar_expand" hidden aria-label="{{ t('sidebar.expand_chat') }}">›</button>
+    {% if current_session %}
+      <div class="chat-header">
+        <div>
+          <div class="chat-title">{{ current_session.title }}</div>
+          <div class="chat-meta">{{ current_session.model }}</div>
+        </div>
+      </div>
+
+      {% if session_attachments %}
+        <div class="attachment-bar">
+          <div class="attachment-bar-title">{{ t('chat.session_attachments') }}</div>
+          <ul class="attachment-list">
+            {% for att in session_attachments %}
+              <li>{{ att.filename }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <div class="messages{% if world %} rp-messages{% endif %}" id="messages"
+           data-persona-name="{{ user_display_name }}"
+           data-world-chat="{% if world %}1{% else %}0{% endif %}"
+           {% if world %}data-world-name="{{ world.name }}" data-world-id="{{ world_id }}"
+           data-characters="{{ world_characters_json | tojson }}"{% endif %}>
+        {% for m in messages %}
+          {% if m.status != 'streaming' or m.content or m.thinking_content %}
+          {% if world %}
+          {% if m.role == 'assistant' %}{% set sp = (message_speakers or {}).get(m.id) or m.speaker or {} %}{% endif %}
+          <div class="rp-message message {{ m.role }}" data-message-id="{{ m.id }}"
+               {% if m.role == 'assistant' %}data-character-id="{{ sp.get('character_id', '') }}" data-world-id="{{ sp.get('world_id', world_id) }}" data-tts-voice="{{ sp.get('tts_voice', '') }}"{% endif %}>
+            {% if m.role == 'assistant' %}
+              {% set sp_name = sp.get('name') or t('chat.role_assistant') %}
+              {% set sp_avatar = sp.get('avatar_url') or (character_avatars.get(sp.get('character_id', '')) if sp.get('character_id') else '') %}
+              <div class="rp-row assistant-row">
+                {% if sp_avatar %}
+                  <img class="rp-avatar" src="{{ sp_avatar }}" alt="" />
+                {% else %}
+                  <div class="rp-avatar fallback">{{ sp_name[0] if sp_name else '?' }}</div>
+                {% endif %}
+                <div class="bubble">
+                  <div class="role-label">{{ sp_name }}{% if world %}<span class="speaker-world">{{ world.name }}</span>{% endif %}</div>
+                  {% if m.thinking_content and user_prefs.show_thinking %}
+                    <details class="thinking-block">
+                      <summary>{{ t('chat.thinking') }}</summary>
+                      <div class="thinking-content">{{ m.thinking_content }}</div>
+                    </details>
+                  {% endif %}
+                  <div class="content">{{ display_transform(m.content, current_session.id) }}</div>
+                </div>
+              </div>
+            {% else %}
+              <div class="rp-row user-row">
+                <div class="bubble">
+                  <div class="role-label">{{ user_display_name }}</div>
+                  <div class="content">{{ m.content }}</div>
+                </div>
+                <div class="rp-avatar fallback user-fallback" title="{{ user_display_name }}">{{ user_display_name[0] if user_display_name else '你' }}</div>
+              </div>
+            {% endif %}
+          </div>
+          {% else %}
+          <div class="message {{ m.role }}" data-message-id="{{ m.id }}">
+            <div class="bubble">
+              <div class="role-label">{% if m.role == 'user' %}{{ user_display_name }}{% else %}{{ t('chat.role_assistant') }}{% endif %}</div>
+              {% if m.thinking_content and user_prefs.show_thinking %}
+                <details class="thinking-block">
+                  <summary>{{ t('chat.thinking') }}</summary>
+                  <div class="thinking-content">{{ m.thinking_content }}</div>
+                </details>
+              {% endif %}
+              <div class="content">{{ display_transform(m.content, current_session.id) }}</div>
+            </div>
+          </div>
+          {% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="composer" id="chat-composer"
+           data-session-id="{{ current_session.id }}"
+           data-world-id="{{ world_id or '' }}">
+        <div class="composer-tools">
+          <label class="upload-btn label-with-help">
+            <span>{{ t('chat.upload') }}</span>{{ help_tip('help.chat.upload') }}
+            <input type="file" id="message_file_input" accept=".txt,.docx,.png,.jpg,.jpeg,.gif,.webp" hidden />
+          </label>
+          <label class="upload-btn ghost-upload label-with-help">
+            <span>{{ t('chat.session_attachments') }}</span>{{ help_tip('help.chat.session_attachments') }}
+            <input type="file" id="session_file_input" accept=".txt,.docx,.png,.jpg,.jpeg,.gif,.webp" hidden />
+          </label>
+          <span class="hint" id="pending_attachments"></span>
+        </div>
+        <div class="composer-row">
+          <textarea id="chat_input" rows="3" placeholder="{{ t('chat.input_placeholder') }}"></textarea>
+          <div class="composer-buttons">
+            <button type="button" class="ghost" id="remember_btn">{{ t('session.remember') }}{{ help_tip('help.chat.remember') }}</button>
+            <button type="button" class="primary send-btn" id="send_btn">{{ t('chat.send') }}</button>
+            {% if world %}
+              <button type="button" class="ghost continue-btn" id="continue_btn">{{ t('chat.continue_writing') }}{{ help_tip('help.chat.continue_writing') }}</button>
+            {% endif %}
+          </div>
+        </div>
+        <div class="hint">{{ t('chat.upload_hint') }}</div>
+      </div>
+    {% else %}
+      <div class="chat-empty">
+        <h2>{{ t('chat.start_title') }}</h2>
+        <p>{% if world %}{{ t('chat.start_hint_world') }}{% else %}{{ t('chat.start_hint_daily') }}{% endif %}</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/session_tools.js"></script>
+<script src="/static/message_ops.js"></script>
+<script src="/static/chat.js"></script>
+{% endblock %}

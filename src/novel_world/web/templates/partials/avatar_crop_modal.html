@@ -1,0 +1,20 @@
+<div id="avatar_crop_modal" class="avatar-crop-modal hidden" aria-hidden="true" role="dialog" aria-labelledby="avatar_crop_title">
+  <div class="avatar-crop-backdrop" data-avatar-crop-close></div>
+  <div class="avatar-crop-dialog card">
+    <h2 id="avatar_crop_title">{{ t('avatar_crop.title') }}</h2>
+    <p class="muted avatar-crop-hint">{{ t('avatar_crop.hint') }}</p>
+    <div class="avatar-crop-viewport" id="avatar_crop_viewport">
+      <img id="avatar_crop_img" alt="" draggable="false" />
+      <div class="avatar-crop-frame" aria-hidden="true"></div>
+    </div>
+    <label class="avatar-crop-zoom-label">
+      <span>{{ t('avatar_crop.zoom') }}</span>
+      <input type="range" id="avatar_crop_zoom" min="100" max="300" value="100" />
+    </label>
+    <div class="avatar-crop-actions">
+      <button type="button" class="ghost" data-avatar-crop-close>{{ t('avatar_crop.cancel') }}</button>
+      <button type="button" class="primary" id="avatar_crop_confirm">{{ t('avatar_crop.confirm') }}</button>
+    </div>
+    <p class="hint avatar-crop-status" id="avatar_crop_status" hidden></p>
+  </div>
+</div>

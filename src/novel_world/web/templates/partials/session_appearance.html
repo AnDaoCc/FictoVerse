@@ -1,0 +1,41 @@
+{% if current_session %}
+
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+<details class="sidebar-panel" id="appearance-panel" data-session-id="{{ current_session.id }}">
+
+  <summary>{{ t('appearance.panel') }}{{ help_tip('help.appearance.panel') }}</summary>
+
+  <div class="panel-body">
+
+    <form method="post" action="/api/sessions/{{ current_session.id }}/background" enctype="multipart/form-data" class="compact-form" id="bg_upload_form">
+
+      <label class="upload-btn ghost-upload">{{ label_with_help('appearance.upload_bg', 'help.appearance.upload_bg') }}
+
+        <input type="file" name="file" accept=".png,.jpg,.jpeg,.webp,.gif" hidden onchange="this.form.submit()" />
+
+      </label>
+
+    </form>
+
+    {% if session_background_url %}
+
+      <div class="hint">{{ t('appearance.bg_active') }}</div>
+
+      <button type="button" class="ghost" id="clear_bg_btn">{{ t('appearance.clear_bg') }}</button>
+
+    {% endif %}
+
+    {% if active_nav == 'roleplay' %}
+
+      <button type="button" class="ghost" id="immersive_toggle">{{ t('appearance.immersive') }}{{ help_tip('help.appearance.immersive') }}</button>
+
+    {% endif %}
+
+  </div>
+
+</details>
+
+{% endif %}
+
+

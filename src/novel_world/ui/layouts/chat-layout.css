@@ -1,0 +1,17 @@
+.chat-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.chat-sidebar .panel-header {
+  margin-bottom: var(--space-3);
+}
+
+.chat-sidebar .panel-header h1 {
+  font-size: var(--text-lg);
+}
+
+.chat-layout .chat-sidebar {
+  overflow-y: auto;
+}

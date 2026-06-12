@@ -1,0 +1,11 @@
+.page--wide {
+  max-width: 1280px;
+}
+
+.page-header--compact {
+  margin-bottom: var(--space-5);
+}
+
+.page-header--compact h1 {
+  font-size: var(--text-2xl);
+}

@@ -1,0 +1,25 @@
+.settings-layout .card {
+  margin-bottom: var(--space-4);
+}
+
+.settings-layout .card:last-child {
+  margin-bottom: 0;
+}
+
+.settings-layout .pref-form .switch-row {
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-layout .pref-form .switch-row:last-of-type {
+  border-bottom: none;
+}
+
+.settings-layout #tts_openai_fields,
+.settings-layout #tts_custom_fields {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-muted);
+}

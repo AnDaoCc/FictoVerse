@@ -1,0 +1,37 @@
+{% from "components/settings_group.html" import settings_group %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+{% call settings_group('settings-system', t('settings.nav_system'), t('settings.nav_system_desc')) %}
+  <section class="card">
+    <h2>{{ t('settings.service_status') }}</h2>
+    {% if server %}
+      <div class="status-grid">
+        <div><span class="label">{{ t('settings.service_status') }}</span><span class="value ok">{{ t('settings.running') }}</span></div>
+        <div><span class="label">{{ t('settings.address') }}</span><span class="value mono">http://{{ server.host }}:{{ server.port }}</span></div>
+        <div><span class="label">{{ t('settings.process') }}</span><span class="value mono">{{ server.pid }}</span></div>
+      </div>
+      <form id="stop-server-form">
+        <button type="submit" class="danger">{{ t('settings.stop_service') }}{{ help_tip('help.settings.stop_service') }}</button>
+      </form>
+    {% else %}
+      <div class="hint">{{ t('settings.no_server_meta') }}</div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>{{ t('settings.embedding_title') }}</h2>
+    <p class="subtitle card-lead">{{ t('settings.embedding_hint') }}</p>
+    <form method="post" action="/settings/preferences" class="pref-form">
+      <label>{{ t('settings.embedding_provider') }}
+        <select name="embedding_provider" onchange="this.form.submit()">
+          <option value="hash" {% if user_prefs.embedding_provider == 'hash' or not user_prefs.embedding_provider %}selected{% endif %}>hash (离线)</option>
+          <option value="openai" {% if user_prefs.embedding_provider == 'openai' %}selected{% endif %}>OpenAI</option>
+          <option value="ollama" {% if user_prefs.embedding_provider == 'ollama' %}selected{% endif %}>Ollama</option>
+        </select>
+      </label>
+      <label>{{ t('settings.sd_webui_url') }}
+        <input name="sd_webui_url" value="{{ user_prefs.sd_webui_url or 'http://127.0.0.1:7860' }}" onchange="this.form.submit()" />
+      </label>
+    </form>
+  </section>
+{% endcall %}

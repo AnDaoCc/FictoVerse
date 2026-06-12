@@ -1,0 +1,69 @@
+<div class="tab-panel active" data-panel="world">
+<section class="card book-page-panel">
+    <h2>{{ label_with_help('world_detail.world_background', 'help.world_detail.world_background') }}</h2>
+    <form method="post" action="/api/worlds/{{ world.id }}/background" enctype="multipart/form-data" class="compact-form">
+      <label class="upload-btn ghost-upload">{{ label_with_help('appearance.upload_bg', 'help.appearance.upload_bg') }}
+        <input type="file" name="file" accept=".png,.jpg,.jpeg,.webp,.gif" hidden onchange="this.form.submit()" />
+      </label>
+    </form>
+    {% if world_background_url %}
+      <div class="hint">{{ t('appearance.bg_active') }}</div>
+      <form method="post" action="/api/worlds/{{ world.id }}/background">
+        <input type="hidden" name="clear" value="1" />
+        <button type="submit" class="ghost">{{ t('appearance.clear_bg') }}</button>
+      </form>
+    {% endif %}
+  </section>
+  <section class="card book-page-panel">
+    <h2>{{ label_with_help('world_detail.edit_world', 'help.world_detail.edit_world') }}</h2>
+    <form method="post" action="/worlds/{{ world.id }}/update" class="compact-form">
+      <div class="grid2">
+        <label>{{ label_with_help('worlds.name', 'help.world_detail.name') }}<input name="name" value="{{ world.name }}" required /></label>
+        <label>{{ label_with_help('worlds.genre', 'help.world_detail.genre') }}<input name="genre" value="{{ world.genre }}" placeholder="{{ t('worlds.genre_ph') }}" /></label>
+      </div>
+      <div class="field">
+        <div class="field-head">
+          {{ field_label_with_help('worlds.description', 'help.world_detail.description') }}
+          <label class="import-btn">{{ t('common.import_file') }}<input type="file" class="import-file" data-target="edit_description" data-mode="text" accept=".txt,.docx" hidden /></label>
+        </div>
+        <textarea id="edit_description" name="description" rows="4" placeholder="{{ t('worlds.description') }}…">{{ world.description }}</textarea>
+      </div>
+
+      <details class="advanced-block" {% if rules_pretty or settings_pretty %}open{% endif %}>
+        <summary>{{ label_with_help('world_detail.advanced_json', 'help.world_detail.advanced_json') }}</summary>
+        <p class="advanced-hint">{{ t('world_detail.advanced_json_hint') }}</p>
+        <div class="grid2">
+          <div class="field">
+            <div class="field-head">
+              {{ field_label_with_help('worlds.rules', 'help.world_detail.rules') }}
+              <label class="import-btn">{{ t('common.import_file') }}<input type="file" class="import-file" data-target="edit_rules" data-mode="json" accept=".txt,.docx" hidden /></label>
+            </div>
+            <textarea id="edit_rules" name="rules_json" rows="7" placeholder="{{ t('world_detail.rules_ph') }}">{{ rules_pretty }}</textarea>
+          </div>
+          <div class="field">
+            <div class="field-head">
+              {{ field_label_with_help('worlds.settings', 'help.world_detail.settings') }}
+              <label class="import-btn">{{ t('common.import_file') }}<input type="file" class="import-file" data-target="edit_settings" data-mode="json" accept=".txt,.docx" hidden /></label>
+            </div>
+            <textarea id="edit_settings" name="settings_json" rows="7" placeholder="{{ t('world_detail.settings_ph') }}">{{ settings_pretty }}</textarea>
+          </div>
+        </div>
+      </details>
+
+      <button type="submit" class="primary">{{ t('world_detail.save_world') }}{{ help_tip('help.world_detail.save_world') }}</button>
+    </form>
+  </section>
+  <section class="card book-page-panel persona-world-block">
+    <h2 class="persona-world-title">{{ label_with_help('user_persona.world_default_title', 'help.user_persona.world_default') }}</h2>
+    <p class="hint">{{ t('user_persona.god_mode_hint') }}</p>
+    <form method="post" action="/worlds/{{ world.id }}/update-user-persona" class="compact-form persona-form">
+      <label>{{ label_with_help('roleplay.persona_name', 'help.roleplay.persona_name') }}
+        <input name="persona_name" value="{{ world_user_persona.name or '' }}" placeholder="{{ t('roleplay.persona_name_ph') }}" />
+      </label>
+      <label>{{ label_with_help('roleplay.persona_desc', 'help.roleplay.persona_desc') }}
+        <textarea name="persona_description" rows="2" placeholder="{{ t('roleplay.persona_desc_ph') }}">{{ world_user_persona.description or '' }}</textarea>
+      </label>
+      <button type="submit" class="ghost">{{ t('user_persona.save_world_default') }}</button>
+    </form>
+  </section>
+</div>

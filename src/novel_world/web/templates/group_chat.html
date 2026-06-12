@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% set title = t('nav.group_chat') %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+{% block content %}
+
+<div class="chat-layout group-chat-layout">
+
+  <aside class="chat-sidebar" id="chat_sidebar">
+    <div class="panel-header">
+      <h1>{{ t('group_chat.title') }}</h1>
+      <button type="button" class="sidebar-inline-toggle" id="chat_sidebar_toggle" aria-expanded="true" aria-label="{{ t('sidebar.collapse_chat') }}">‹</button>
+    </div>
+
+    <p class="hint sidebar-intro">{{ t('group_chat.subtitle') }}</p>
+
+
+
+    <details class="new-group-form" id="new-group-form" {% if not current_session %}open{% endif %}>
+
+      <summary>{{ t('group_chat.create_title') }}</summary>
+
+      <form method="post" action="/group-chat/sessions/create" id="group-create-form" class="compact-form">
+
+        <label>{{ label_with_help('group_chat.group_name', 'help.group_chat.group_name') }}
+
+          <input name="title" placeholder="{{ t('group_chat.group_name_ph') }}" />
+
+        </label>
+
+        <label>{{ label_with_help('chat.provider_label', 'help.chat.provider_label') }}
+
+          <select name="provider_id" id="provider_select" required {% if provider_option_groups|length == 0 %}disabled{% endif %}>
+
+            {% for group in provider_option_groups %}
+
+              <optgroup label="{{ group.label }}">
+
+                {% for opt in group.options %}
+
+                  <option
+
+                    value="{{ opt.value }}"
+
+                    data-default-model="{{ opt.default_model }}"
+
+                    data-models="{{ opt.models | join('|') }}"
+
+                  >{{ opt.label }}</option>
+
+                {% endfor %}
+
+              </optgroup>
+
+            {% endfor %}
+
+          </select>
+
+        </label>
+
+        {% if provider_option_groups|length == 0 %}
+
+          <div class="hint warn"><a href="/settings">{{ t('chat.provider_hint_empty') }}</a></div>
+
+        {% endif %}
+
+        <label>{{ label_with_help('chat.model_label', 'help.chat.model_label') }}
+
+          <select id="model_select"></select>
+
+          <input name="model" id="model_input" placeholder="{{ t('common.model_manual_ph') }}" />
+
+        </label>
+
+
+
+        <div class="member-picker">
+
+          <div class="member-picker-title">{{ t('group_chat.pick_members') }}{{ help_tip('help.group_chat.pick_members') }}</div>
+
+          {% if world_tree|length == 0 %}
+
+            <div class="empty">{{ t('worlds.empty') }}</div>
+
+          {% else %}
+
+            {% for w in world_tree %}
+
+              <div class="member-world">
+
+                <div class="member-world-name">{{ w.name }}</div>
+
+                {% for c in w.characters %}
+
+                  <label class="member-item">
+
+                    <input type="checkbox" class="member-checkbox"
+
+                           data-world-id="{{ w.id }}" data-char-id="{{ c.id }}" />
+
+                    <span>{{ c.name }}<span class="member-role">{{ c.role }}</span></span>
+
+                  </label>
+
+                {% else %}
+
+                  <div class="hint small">{{ t('world_detail.no_characters') }}</div>
+
+                {% endfor %}
+
+              </div>
+
+            {% endfor %}
+
+          {% endif %}
+
+        </div>
+
+
+
+        <input type="hidden" name="members" id="members_input" value="[]" />
+
+        <div class="hint" id="members_hint">{{ t('group_chat.no_members_hint') }}</div>
+
+        <button type="submit" class="primary" {% if provider_option_groups|length == 0 %}disabled{% endif %}>{{ t('group_chat.create_btn') }}{{ help_tip('help.group_chat.create_btn') }}</button>
+
+      </form>
+
+    </details>
+
+
+
+    <div class="session-list">
+
+      {% for s in sessions %}
+
+        <div class="session-item {% if current_session and current_session.id == s.id %}active{% endif %}">
+
+          <a class="session-link" href="/group-chat?session_id={{ s.id }}">
+
+            <div class="session-title">{{ s.title }}</div>
+
+            <div class="session-meta">{{ s.model }}</div>
+
+          </a>
+
+          <form method="post" action="/group-chat/sessions/{{ s.id }}/delete" class="session-delete"
+
+                onsubmit="return confirm('{{ t('group_chat.delete_confirm') }}');">
+
+            <button type="submit" class="icon-danger" title="{{ t('group_chat.delete_session') }}" aria-label="{{ t('group_chat.delete_session') }}">×</button>
+
+          </form>
+
+        </div>
+
+      {% else %}
+
+        <div class="empty">{{ t('group_chat.no_sessions') }}</div>
+
+      {% endfor %}
+
+    </div>
+
+
+
+    {% if current_session and members %}
+
+      <div class="char-panel" id="group-members-panel" data-session-id="{{ current_session.id }}">
+
+        <div class="char-panel-title label-with-help"><span>{{ t('group_chat.members_title') }}</span>{{ help_tip('help.group_chat.members_panel') }}</div>
+
+        <div class="member-chip-list" id="member_chip_list">
+
+          {% for m in members %}
+
+            <span class="member-chip {% if m.character_id in muted_member_ids %}is-muted{% endif %}"
+
+                  data-world-id="{{ m.world_id }}" data-char-id="{{ m.character_id }}">
+
+              {% if m.character_id in muted_member_ids %}<span class="muted-badge">{{ t('group_chat.muted') }}</span>{% endif %}
+
+              {{ m.character_name }}<span class="member-chip-world">{{ m.world_name }}</span>
+
+              <button type="button" class="member-mute-btn ghost" title="{{ t('group_chat.toggle_mute') }}" aria-label="{{ t('group_chat.toggle_mute') }}">🔇</button>
+
+              <button type="button" class="member-remove-btn icon-danger" title="{{ t('group_chat.remove_member') }}" aria-label="{{ t('group_chat.remove_member') }}">×</button>
+
+            </span>
+
+          {% endfor %}
+
+        </div>
+
+        <details class="add-member-panel">
+
+          <summary>{{ t('group_chat.add_member') }}</summary>
+
+          <div class="member-picker compact">
+
+            {% for w in world_tree %}
+
+              <div class="member-world">
+
+                <div class="member-world-name">{{ w.name }}</div>
+
+                {% for c in w.characters %}
+
+                  <label class="member-item">
+
+                    <input type="checkbox" class="add-member-checkbox"
+
+                           data-world-id="{{ w.id }}" data-char-id="{{ c.id }}" />
+
+                    <span>{{ c.name }}</span>
+
+                  </label>
+
+                {% endfor %}
+
+              </div>
+
+            {% endfor %}
+
+          </div>
+
+          <button type="button" class="ghost" id="add_members_btn">{{ t('group_chat.add_member_btn') }}</button>
+
+        </details>
+
+      </div>
+
+    {% endif %}
+
+    {% include "partials/session_user_persona.html" %}
+    {% include "partials/session_sidebar_extras.html" %}
+
+  </aside>
+
+
+
+  <section class="chat-main {% if session_background_url %}has-session-bg{% endif %}"
+
+           {% if session_background_url %}style="--session-bg: url('{{ session_background_url }}');"{% endif %}>
+
+    <button type="button" class="sidebar-inline-toggle sidebar-inline-toggle--expand" id="chat_sidebar_expand" hidden aria-label="{{ t('sidebar.expand_chat') }}">›</button>
+
+    {% if current_session %}
+
+      <div class="chat-header">
+
+        <div>
+
+          <div class="chat-title">{{ current_session.title }}</div>
+
+          <div class="chat-meta">{{ current_session.model }}</div>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="messages rp-messages" id="messages">
+
+        {% for m in messages %}
+
+          {% if m.role == 'user' %}
+
+            <div class="message user rp-message" data-message-id="{{ m.id }}">
+
+              <div class="rp-row user-row">
+
+                <div class="bubble">
+
+                  <div class="role-label">{{ user_display_name }}</div>
+
+                  <div class="content">{{ display_transform(m.content, current_session.id) }}</div>
+
+                </div>
+
+                <div class="rp-avatar fallback user-fallback" title="{{ user_display_name }}">{{ user_display_name[0] }}</div>
+
+              </div>
+
+            </div>
+
+          {% else %}
+
+            <div class="message assistant group-msg rp-message" data-message-id="{{ m.id }}">
+
+              <div class="rp-row assistant-row">
+
+                {% set sp = m.speaker or {} %}
+
+                {% if sp.get('avatar_url') %}
+
+                  <img class="rp-avatar" src="{{ sp.get('avatar_url') }}" alt="" />
+
+                {% else %}
+
+                  <div class="rp-avatar fallback">{{ (sp.get('name') or '?')[0] }}</div>
+
+                {% endif %}
+
+                <div class="bubble">
+
+                  <div class="role-label">
+
+                    {% if sp %}{{ sp.get('name') }}<span class="speaker-world">{{ t('group_chat.from_world') }} {{ sp.get('world_name') }}</span>{% else %}{{ t('chat.role_assistant') }}{% endif %}
+
+                  </div>
+
+                  <div class="content">{{ display_transform(m.content, current_session.id) }}</div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          {% endif %}
+
+        {% endfor %}
+
+      </div>
+
+
+
+      <script type="application/json" id="group_mention_data">{{ mention_members | tojson }}</script>
+
+      <div class="composer" id="group-composer"
+           data-session-id="{{ current_session.id }}"
+           data-persona-name="{{ user_display_name }}"
+           data-mention-members='{{ mention_members | tojson }}'>
+
+        <div class="composer-row">
+
+          <div class="composer-input-wrap">
+            <textarea id="group_input" rows="2" placeholder="{{ t('group_chat.input_placeholder') }}" autocomplete="off"></textarea>
+            <ul class="mention-picker" id="group_mention_picker" role="listbox" hidden></ul>
+          </div>
+
+          <div class="composer-buttons">
+
+            <button type="button" class="ghost" id="remember_btn">{{ t('session.remember') }}{{ help_tip('help.chat.remember') }}</button>
+
+            <button type="button" class="primary" id="group_send_btn">{{ t('group_chat.send') }}</button>
+
+            <button type="button" class="ghost" id="group_reply_btn">{{ t('group_chat.reply_round') }}{{ help_tip('help.group_chat.reply_round') }}</button>
+
+          </div>
+
+        </div>
+
+        <div class="group-controls">
+
+          <div class="group-progress" id="group_progress" hidden>
+
+            <div class="group-progress-bar"><div class="group-progress-fill" id="group_progress_fill"></div></div>
+
+            <span class="hint" id="group_progress_label"></span>
+
+          </div>
+
+          <label class="group-control">{{ label_with_help('group_chat.force_speaker', 'help.group_chat.force_speaker') }}
+
+            <select id="group_force_speaker">
+
+              <option value="">{{ t('group_chat.force_speaker_auto') }}</option>
+
+              {% for m in members %}
+
+                <option value="{{ m.character_id }}">{{ m.character_name }}（{{ m.world_name }}）</option>
+
+              {% endfor %}
+
+            </select>
+
+          </label>
+
+          <label class="group-control">{{ label_with_help('group_chat.max_round', 'help.group_chat.max_round') }}
+
+            <input type="number" id="group_max_round" min="1" max="20" value="5" />
+
+          </label>
+
+          <label class="group-control">{{ label_with_help('group_chat.max_per_character', 'help.group_chat.max_per_character') }}
+
+            <input type="number" id="group_max_per_character" min="0" max="20" value="0" />
+
+          </label>
+
+          <button type="button" class="ghost" id="group_auto_btn">{{ t('group_chat.auto_reply') }}{{ help_tip('help.group_chat.auto_reply') }}</button>
+
+          <button type="button" class="danger" id="group_stop_btn" hidden>{{ t('group_chat.stop') }}{{ help_tip('help.group_chat.stop') }}</button>
+
+          <span class="hint" id="group_status"></span>
+
+        </div>
+
+      </div>
+
+    {% else %}
+
+      <div class="chat-empty">
+
+        <h2>{{ t('group_chat.start_title') }}</h2>
+
+        <p>{{ t('group_chat.start_hint') }}</p>
+
+      </div>
+
+    {% endif %}
+
+  </section>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="/static/session_tools.js"></script>
+
+<script src="/static/message_ops.js"></script>
+
+<script src="/static/group_chat.js"></script>
+
+{% endblock %}
+
+

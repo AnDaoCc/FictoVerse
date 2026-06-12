@@ -1,0 +1,10 @@
+{% macro empty_state(title, desc=None, icon='◇') %}
+<div class="empty-state">
+  <div class="empty-state__icon" aria-hidden="true">{{ icon }}</div>
+  <h3 class="empty-state__title">{{ title }}</h3>
+  {% if desc %}<p class="empty-state__desc">{{ desc }}</p>{% endif %}
+  {% if caller %}
+  <div class="empty-state__action">{{ caller() }}</div>
+  {% endif %}
+</div>
+{% endmacro %}

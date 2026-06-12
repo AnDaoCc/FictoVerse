@@ -1,0 +1,11 @@
+{
+  "name": "novel-world-simulator-ui",
+  "private": true,
+  "scripts": {
+    "build:ui": "vite build --config src/novel_world/ui/vite.config.js",
+    "dev:ui": "vite build --config src/novel_world/ui/vite.config.js --watch"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

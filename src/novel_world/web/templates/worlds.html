@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% set title = t('worlds.title') %}
+{% from "partials/help_tip.html" import help_tip, label_with_help, field_label_with_help %}
+{% block page_subtitle %}<p class="topbar-subtitle">{{ t('worlds.subtitle') }}</p>{% endblock %}
+{% block content %}
+<div class="page worlds-page book-theme">
+  <div class="page-header book-page-header page-header--compact">
+    <h1>{{ t('worlds.title') }}</h1>
+  </div>
+
+  {% if import_error %}
+    <div class="alert alert-error" role="alert">{{ t('worlds.import_error') }}</div>
+  {% endif %}
+
+  <form method="post" action="/worlds/create" class="worlds-create-bar compact-form">
+    <label>{{ label_with_help('worlds.name', 'help.worlds.name') }}<input name="name" required placeholder="{{ t('worlds.name_ph') }}" /></label>
+    <label>{{ label_with_help('worlds.genre', 'help.worlds.genre') }}<input name="genre" placeholder="{{ t('worlds.genre_ph') }}" /></label>
+    <div class="worlds-create-actions">
+      <button type="submit" class="primary">{{ t('worlds.create_btn') }}</button>
+    </div>
+    <details class="worlds-create-advanced advanced-block">
+      <summary>{{ t('worlds.create_advanced') }}</summary>
+      <div class="field">
+        <div class="field-head">
+          {{ field_label_with_help('worlds.description', 'help.worlds.description') }}
+          <label class="import-btn">{{ t('common.import_file') }}<input type="file" class="import-file" data-target="create_description" data-mode="text" accept=".txt,.docx" hidden /></label>
+        </div>
+        <textarea id="create_description" name="description" rows="3"></textarea>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <div class="field-head">
+            {{ field_label_with_help('worlds.rules', 'help.worlds.rules') }}
+            <label class="import-btn">{{ t('common.import_file') }}<input type="file" class="import-file" data-target="create_rules" data-mode="json" accept=".txt,.docx" hidden /></label>
+          </div>
+          <textarea id="create_rules" name="rules_json" rows="4">{}</textarea>
+        </div>
+        <div class="field">
+          <div class="field-head">
+            {{ field_label_with_help('worlds.settings', 'help.worlds.settings') }}
+            <label class="import-btn">{{ t('common.import_file') }}<input type="file" class="import-file" data-target="create_settings" data-mode="json" accept=".txt,.docx" hidden /></label>
+          </div>
+          <textarea id="create_settings" name="settings_json" rows="4">{}</textarea>
+        </div>
+      </div>
+    </details>
+  </form>
+
+  <div class="worlds-import-inline">
+    <form method="post" action="/worlds/import-pack" enctype="multipart/form-data" class="row">
+      <span class="hint">{{ label_with_help('worlds.import_pack', 'help.worlds.import_pack') }}</span>
+      <input type="file" name="file" accept=".zip,.nworld.zip" required />
+      <button type="submit" class="ghost">{{ t('worlds.import_pack_btn') }}</button>
+    </form>
+  </div>
+
+  <section class="card book-panel bookshelf-section">
+    <h2>{{ t('worlds.list_title') }}</h2>
+    {% if worlds|length == 0 %}
+      <div class="bookshelf-empty">{{ t('worlds.bookshelf_empty') }}</div>
+    {% else %}
+      <div class="bookshelf" id="bookshelf">
+        <div class="bookshelf-row">
+          {% for w in worlds %}
+            <div class="book-item" style="--book-shift: {{ w.spine_hue }};">
+              <a class="book-front{% if w.cover_url %} has-cover{% endif %}"
+                 href="/worlds/{{ w.id }}"
+                 title="{{ w.name }}"
+                 {% if w.cover_url %}style="--book-cover: url('{{ w.cover_url }}');"{% endif %}>
+                <span class="book-front-edge" aria-hidden="true"></span>
+                {% if w.cover_url %}<span class="book-front-shade" aria-hidden="true"></span>{% endif %}
+                <span class="book-front-title">{{ w.name }}</span>
+                {% if w.genre %}<span class="book-front-genre">{{ w.genre }}</span>{% endif %}
+              </a>
+              <form method="post" action="/worlds/{{ w.id }}/delete" class="book-front-delete"
+                    onsubmit='return confirm("{{ t('worlds.delete_confirm', name=w.name) }}");'>
+                <button type="submit" class="icon-danger" title="{{ t('worlds.delete_world') }}" aria-label="{{ t('worlds.delete_world') }}">×</button>
+              </form>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="bookshelf-plank" aria-hidden="true"></div>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/worlds.js"></script>
+{% endblock %}

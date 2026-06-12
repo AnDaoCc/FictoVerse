@@ -1,0 +1,12 @@
+{% macro sidebar_zone(title, desc=None, badge=None, zone_class='') %}
+<div class="sidebar-zone {{ zone_class }}">
+  <div class="zone-header">
+    <h3 class="zone-title">{{ title }}</h3>
+    {% if badge %}<span class="zone-badge">{{ badge }}</span>{% endif %}
+  </div>
+  {% if desc %}<p class="zone-desc">{{ desc }}</p>{% endif %}
+  <div class="zone-body">
+    {{ caller() }}
+  </div>
+</div>
+{% endmacro %}

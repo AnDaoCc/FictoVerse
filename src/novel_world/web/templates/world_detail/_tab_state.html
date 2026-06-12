@@ -1,0 +1,28 @@
+<div class="tab-panel" data-panel="state">
+  <div class="grid2">
+    <section class="card book-page-panel">
+      <h2>{{ t('world_detail.state') }}</h2>
+      <form method="post" action="/worlds/{{ world.id }}/state/set">
+        <label>{{ label_with_help('world_detail.state_key', 'help.world_detail.state_key') }}<input name="key" placeholder="{{ t('world_detail.state_key_ph') }}" required /></label>
+        <label>{{ label_with_help('world_detail.state_value', 'help.world_detail.state_value') }}<input name="value_json" /></label>
+        <button type="submit">{{ t('world_detail.write_state') }}{{ help_tip('help.world_detail.write_state') }}</button>
+      </form>
+      <ul class="simple-list mono small">
+        {% for s in state_entries %}
+          <li>{{ s.key }} = {{ s.value }}</li>
+        {% else %}
+          <li class="muted">{{ t('world_detail.no_state') }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="card book-page-panel">
+      <h2>{{ t('world_detail.events') }}</h2>
+      <form method="post" action="/worlds/{{ world.id }}/events/record">
+        <label>{{ label_with_help('world_detail.event_type', 'help.world_detail.event_type') }}<input name="event_type" required /></label>
+        <label>{{ label_with_help('world_detail.event_payload', 'help.world_detail.event_payload') }}<textarea name="payload_json" rows="3">{}</textarea></label>
+        <button type="submit">{{ t('world_detail.record_event') }}{{ help_tip('help.world_detail.record_event') }}</button>
+      </form>
+    </section>
+  </div>
+  </div>

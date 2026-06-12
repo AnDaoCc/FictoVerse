@@ -1,0 +1,128 @@
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+{% from "components/sidebar_zone.html" import sidebar_zone %}
+
+<div class="panel-header">
+  <h1>{% if sidebar_title %}{{ sidebar_title }}{% elif world %}{{ t('chat.world_title') }}{% else %}{{ t('chat.daily_title') }}{% endif %}</h1>
+  <div class="panel-header-actions">
+    {% if world and show_world_link %}
+      <a class="link-btn" href="/worlds/{{ world.id }}">{{ t('chat.world_detail_link') }}</a>
+    {% endif %}
+    <button type="button" class="sidebar-inline-toggle" id="chat_sidebar_toggle" aria-expanded="true" aria-label="{{ t('sidebar.collapse_chat') }}">‹</button>
+  </div>
+</div>
+
+{% call sidebar_zone(t('chat.zone_world'), t('chat.zone_world_desc')) %}
+  <div class="world-switcher field-compact">
+    <select id="world_switcher" data-navigate="1" aria-label="{{ t('chat.switch_world') }}">
+      <option value="/chat" {% if not world_id %}selected{% endif %}>{{ t('chat.daily_chat') }}</option>
+      {% for w in worlds %}
+        <option value="/worlds/{{ w.id }}/chat" {% if world_id == w.id %}selected{% endif %}>{{ w.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+{% endcall %}
+
+{% call sidebar_zone(t('chat.zone_new_session'), t('chat.zone_new_session_desc')) %}
+  <div class="new-session-compact">
+    <form method="post" action="{{ session_create_action or '/chat/sessions/create' }}" class="new-session-form compact-form" id="new-session-form">
+      {% if world_id %}<input type="hidden" name="world_id" value="{{ world_id }}" />{% endif %}
+      {% if character_id %}<input type="hidden" name="character_id" value="{{ character_id }}" />{% endif %}
+      {% if extra_session_fields %}{{ extra_session_fields | safe }}{% endif %}
+      <button type="submit" class="primary new-session-cta btn-lg" {% if provider_option_groups|length == 0 %}disabled{% endif %}>{{ new_session_label or t('chat.new_session') }}</button>
+      <details class="new-session-advanced">
+        <summary>{{ t('chat.advanced_options') }}{{ help_tip('help.chat.provider_label') }}</summary>
+        <div class="panel-body">
+          <label>{{ label_with_help('chat.provider_label', 'help.chat.provider_label') }}
+            <select name="provider_id" id="provider_select" required {% if provider_option_groups|length == 0 %}disabled{% endif %}>
+              {% for group in provider_option_groups %}
+                <optgroup label="{{ group.label }}">
+                  {% for opt in group.options %}
+                    <option
+                      value="{{ opt.value }}"
+                      data-default-model="{{ opt.default_model }}"
+                      data-models="{{ opt.models | join('|') }}"
+                      data-configured="true"
+                    >{{ opt.label }}</option>
+                  {% endfor %}
+                </optgroup>
+              {% endfor %}
+            </select>
+          </label>
+          {% if provider_option_groups|length == 0 %}
+            <div class="hint warn"><a href="/settings">{{ t('chat.provider_hint_empty') }}</a></div>
+          {% endif %}
+          <label>{{ label_with_help('chat.model_label', 'help.chat.model_label') }}
+            <select id="model_select"></select>
+            <input name="model" id="model_input" placeholder="{{ t('common.model_manual_ph') }}" />
+            <div class="hint" id="model_source_hint"></div>
+          </label>
+          {% if roleplay_persona_fields %}{{ roleplay_persona_fields | safe }}{% endif %}
+          <div class="hint" id="provider_hint">{{ t('chat.provider_hint_ok') }}</div>
+        </div>
+      </details>
+    </form>
+  </div>
+{% endcall %}
+
+{% call sidebar_zone(t('chat.zone_sessions'), none, sessions|length, 'sidebar-zone--sessions') %}
+  <div class="session-list">
+    {% for s in sessions %}
+      <div class="session-item {% if current_session and current_session.id == s.id %}active{% endif %}">
+        <a class="session-link" href="{{ session_link_prefix or ('/worlds/' ~ world_id ~ '/chat' if world_id else '/chat') }}?session_id={{ s.id }}">
+          <div class="session-title">{{ s.title or t('chat.unnamed_session') }}</div>
+          <div class="session-meta">{{ s.model }}</div>
+        </a>
+        <form method="post" action="{{ session_delete_prefix or '/chat/sessions' }}/{{ s.id }}/delete" class="session-delete" onsubmit="return confirm('{{ t('chat.delete_session_confirm') }}');">
+          {% if world_id %}<input type="hidden" name="world_id" value="{{ world_id }}" />{% endif %}
+          {% if character_id %}
+            <input type="hidden" name="world_id" value="{{ world_id }}" />
+            <input type="hidden" name="character_id" value="{{ character_id }}" />
+          {% endif %}
+          <button type="submit" class="icon-danger" title="{{ t('chat.delete_session') }}" aria-label="{{ t('chat.delete_session') }}">×</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="empty">{{ t('chat.no_sessions') }}</div>
+    {% endfor %}
+  </div>
+{% endcall %}
+
+{% if world and characters %}
+  {% call sidebar_zone(t('chat.world_characters'), t('chat.zone_characters_desc'), characters|length, 'sidebar-zone--collapsed') %}
+    <details class="sidebar-panel">
+      <summary>{{ t('chat.world_characters') }}{{ help_tip('help.chat.world_characters') }}</summary>
+      <div class="panel-body">
+        <div class="char-card-list">
+          {% for c in characters %}
+            <details class="char-card-mini" data-role="{{ c.role }}">
+              <summary>
+                <span class="char-mini-head">
+                  {% if character_avatars.get(c.id | string) %}
+                    <img class="char-mini-avatar" src="{{ character_avatars[c.id | string] }}" alt="" />
+                  {% else %}
+                    <span class="char-mini-avatar fallback">{{ c.name[0] if c.name else '?' }}</span>
+                  {% endif %}
+                  <span class="char-mini-name">{{ c.name }}</span>
+                </span>
+                <span class="char-mini-role role-badge role-{{ c.role | replace('_', '-') }}">{{ role_label(c.role) }}</span>
+              </summary>
+              <div class="char-mini-body">
+                {% if c.profile.get('summary') %}<p><span class="char-mini-label">{{ t('world_detail.char_summary') }}</span>{{ c.profile.get('summary') }}</p>{% endif %}
+                {% if c.profile.get('personality') %}<p><span class="char-mini-label">{{ t('world_detail.char_personality') }}</span>{{ c.profile.get('personality') }}</p>{% endif %}
+                {% if c.profile.get('appearance') %}<p><span class="char-mini-label">{{ t('world_detail.char_appearance') }}</span>{{ c.profile.get('appearance') }}</p>{% endif %}
+                <a class="char-mini-edit" href="/worlds/{{ world.id }}">{{ t('chat.edit_character_link') }}</a>
+              </div>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+    </details>
+  {% endcall %}
+{% endif %}
+
+{% if show_session_config %}
+  {% call sidebar_zone(t('chat.zone_session_config'), t('chat.zone_session_config_desc')) %}
+    {% include "partials/session_user_persona.html" %}
+    {% include "partials/session_sidebar_extras.html" %}
+  {% endcall %}
+{% endif %}

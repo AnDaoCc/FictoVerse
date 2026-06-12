@@ -1,0 +1,630 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>FictoVerse - 虚构宇宙</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+    <symbol id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="icon-worlds" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></symbol>
+    <symbol id="icon-download" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></symbol>
+    <symbol id="icon-console" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12zM6 10h2v2H6v-2zm0 4h8v2H6v-2zm10 0h2v2h-2v-2zm-4-4h8v2h-8v-2z"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></symbol>
+    <symbol id="icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></symbol>
+    <symbol id="icon-folder" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></symbol>
+    <symbol id="icon-data" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 10h2v7H7v-7zm4-3h2v10h-2V7zm4 6h2v4h-2v-4z"/></symbol>
+    <symbol id="icon-log" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></symbol>
+    <symbol id="icon-globe" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></symbol>
+    <symbol id="icon-puzzle" viewBox="0 0 24 24"><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-2 .9-2 2v3.8h1.5c1.38 0 2.5 1.12 2.5 2.5S4.88 15.8 3.5 15.8H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></symbol>
+    <symbol id="icon-guide" viewBox="0 0 24 24"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></symbol>
+  </svg>
+
+  <div class="launcher" id="launcher_root">
+    <div class="launcher-bg" id="launcher_bg" aria-hidden="true"></div>
+    <div class="launcher-scrim" id="launcher_scrim"></div>
+
+    <aside class="launcher-rail" aria-label="主导航">
+      <button type="button" class="nav-item active await-api" data-view="home" title="一键启动" disabled>
+        <span class="nav-icon"><svg><use href="#icon-play"/></svg></span>
+        <span class="nav-label">一键启动</span>
+      </button>
+      <button type="button" class="nav-item await-api" data-view="worlds" title="世界管理" disabled>
+        <span class="nav-icon"><svg><use href="#icon-worlds"/></svg></span>
+        <span class="nav-label">世界管理</span>
+      </button>
+      <button type="button" class="nav-item await-api" data-view="setup" title="环境安装" disabled>
+        <span class="nav-icon"><svg><use href="#icon-download"/></svg></span>
+        <span class="nav-label">环境安装</span>
+      </button>
+      <button type="button" class="nav-item await-api" data-view="console" title="控制台" disabled>
+        <span class="nav-icon"><svg><use href="#icon-console"/></svg></span>
+        <span class="nav-label">控制台</span>
+      </button>
+      <button type="button" class="nav-item await-api" data-view="settings" title="设置" disabled>
+        <span class="nav-icon"><svg><use href="#icon-settings"/></svg></span>
+        <span class="nav-label">设置</span>
+      </button>
+      <button type="button" class="nav-item await-api" data-view="guide" title="使用指南" disabled>
+        <span class="nav-icon"><svg><use href="#icon-guide"/></svg></span>
+        <span class="nav-label">使用指南</span>
+      </button>
+      <div class="rail-spacer"></div>
+      <button type="button" class="nav-item danger-nav await-api" data-action="stop_server" title="停止服务" disabled>
+        <span class="nav-icon"><svg><use href="#icon-stop"/></svg></span>
+        <span class="nav-label">停止服务</span>
+      </button>
+    </aside>
+
+    <main class="launcher-stage">
+      <section id="view_home" class="view view-home active">
+        <div class="home-page">
+          <header class="home-topbar">
+            <div class="hero-brand">
+              <span class="hero-logo">书</span>
+              <div>
+                <h1>FictoVerse</h1>
+                <p class="hero-sub">本地虚构宇宙模拟器</p>
+              </div>
+            </div>
+            <span id="status_badge" class="status-badge idle">未运行</span>
+          </header>
+
+          <div class="launch-dock">
+            <button type="button" class="launch-cta await-api" id="btn_launch" data-mode="launch" disabled>
+              <span class="launch-icon"><svg><use href="#icon-play"/></svg></span>
+              <span class="launch-text">
+                <strong>一键启动</strong>
+                <small>自动安装依赖并启动服务</small>
+              </span>
+            </button>
+            <p class="url-hint home-url" id="url_line"></p>
+          </div>
+
+          <div class="home-panels">
+            <details class="paper-panel home-panel" open>
+              <summary>快捷目录</summary>
+              <div class="home-panel-body">
+                <div class="quick-grid">
+                  <button type="button" class="quick-tile await-api" data-dir="root" disabled>
+                    <span class="quick-icon"><svg><use href="#icon-folder"/></svg></span>
+                    <span>根目录</span>
+                  </button>
+                  <button type="button" class="quick-tile await-api" data-dir="data" disabled>
+                    <span class="quick-icon"><svg><use href="#icon-data"/></svg></span>
+                    <span>数据目录</span>
+                  </button>
+                  <button type="button" class="quick-tile await-api" data-dir="logs" disabled>
+                    <span class="quick-icon"><svg><use href="#icon-log"/></svg></span>
+                    <span>日志目录</span>
+                  </button>
+                  <button type="button" class="quick-tile await-api" data-dir="extensions" disabled>
+                    <span class="quick-icon"><svg><use href="#icon-puzzle"/></svg></span>
+                    <span>扩展目录</span>
+                  </button>
+                </div>
+              </div>
+            </details>
+
+            <details class="paper-panel home-panel" open>
+              <summary>系统信息</summary>
+              <div class="home-panel-body">
+                <dl class="sys-list">
+                  <div class="sys-row">
+                    <dt>启动器版本</dt>
+                    <dd id="info_launcher">—</dd>
+                  </div>
+                  <div class="sys-row">
+                    <dt>应用版本</dt>
+                    <dd id="info_app">—</dd>
+                  </div>
+                  <div class="sys-row">
+                    <dt>Python</dt>
+                    <dd id="info_python">—</dd>
+                    <select class="sys-python-select await-api" id="sel_python" hidden disabled></select>
+                    <button type="button" class="btn-sys-upgrade await-api" id="btn_upgrade_python" hidden disabled title="升级到最新兼容版">↑</button>
+                  </div>
+                  <div class="sys-row">
+                    <dt>虚拟环境</dt>
+                    <dd id="info_venv">—</dd>
+                  </div>
+                  <div class="sys-row">
+                    <dt>依赖状态</dt>
+                    <dd id="info_deps">—</dd>
+                    <button type="button" class="btn-sys-upgrade await-api" id="btn_upgrade_deps" hidden disabled title="升级依赖到最新版">↑</button>
+                  </div>
+                  <div class="sys-row">
+                    <dt>服务</dt>
+                    <dd id="info_service">—</dd>
+                  </div>
+                </dl>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section id="view_console" class="view">
+        <div class="card console-card">
+          <div class="console-header">
+            <h2>控制台</h2>
+            <button type="button" class="btn-text" id="btn_clear_logs">清空日志</button>
+          </div>
+          <pre id="log_box" class="log-box"></pre>
+        </div>
+      </section>
+
+      <section id="view_setup" class="view">
+        <div class="card setup-card">
+          <h2>环境安装</h2>
+          <p class="muted setup-intro">首次使用请先检测并安装运行环境（Python、虚拟环境、项目依赖）。</p>
+          <ul class="setup-checklist" id="setup_checklist">
+            <li class="setup-row" data-key="python">
+              <span class="setup-dot" id="setup_python_dot"></span>
+              <div class="setup-row-body">
+                <strong>Python 3.11+</strong>
+                <span class="setup-detail" id="setup_python_detail">检测中…</span>
+              </div>
+            </li>
+            <li class="setup-row" data-key="webview2">
+              <span class="setup-dot" id="setup_webview2_dot"></span>
+              <div class="setup-row-body">
+                <strong>WebView2 运行时</strong>
+                <span class="setup-detail" id="setup_webview2_detail">检测中…</span>
+              </div>
+            </li>
+            <li class="setup-row" data-key="root">
+              <span class="setup-dot" id="setup_root_dot"></span>
+              <div class="setup-row-body">
+                <strong>项目根目录</strong>
+                <span class="setup-detail" id="setup_root_detail">检测中…</span>
+              </div>
+            </li>
+            <li class="setup-row" data-key="venv">
+              <span class="setup-dot" id="setup_venv_dot"></span>
+              <div class="setup-row-body">
+                <strong>虚拟环境 .venv</strong>
+                <span class="setup-detail" id="setup_venv_detail">检测中…</span>
+              </div>
+            </li>
+            <li class="setup-row" data-key="deps">
+              <span class="setup-dot" id="setup_deps_dot"></span>
+              <div class="setup-row-body">
+                <strong>项目依赖</strong>
+                <span class="setup-detail" id="setup_deps_detail">检测中…</span>
+              </div>
+            </li>
+          </ul>
+          <p class="setup-ready" id="setup_ready_hint" hidden>环境已就绪，可使用「一键启动」。</p>
+          <div id="setup_progress_wrap" class="setup-progress-wrap" hidden>
+            <div class="setup-progress-track">
+              <div id="setup_progress_bar" class="setup-progress-bar"></div>
+            </div>
+            <p id="setup_progress_label" class="setup-progress-label">准备中…</p>
+          </div>
+          <label class="check-row setup-option">
+            <input type="checkbox" id="chk_recreate_venv" />
+            重建虚拟环境（会删除现有 .venv）
+          </label>
+          <div class="setup-actions">
+             <button type="button" class="ghost await-api" id="btn_refresh_prereq" disabled>重新检测</button>
+             <button type="button" class="ghost await-api" id="btn_upgrade_all" hidden disabled>升级运行环境</button>
+             <button type="button" class="ghost await-api" id="btn_install_python" hidden disabled>安装 Python（需确认）</button>
+             <button type="button" class="primary setup-primary await-api" id="btn_install_env" disabled>一键安装最新环境</button>
+        </div>
+      </section>
+
+      <section id="view_worlds" class="view">
+        <div class="worlds-layout">
+          <aside class="worlds-sidebar">
+            <h2>世界书架</h2>
+            <div class="worlds-toolbar">
+              <button type="button" class="primary await-api" id="btn_new_world" disabled>新建世界</button>
+              <button type="button" class="ghost await-api" id="btn_import_pack" disabled>导入 .nworld.zip</button>
+              <input type="file" id="import_pack_input" accept=".zip,.nworld.zip" hidden />
+            </div>
+            <ul class="worlds-list" id="worlds_list"></ul>
+            <p id="worlds_empty_hint" class="worlds-empty-hint">选择或新建一个世界</p>
+          </aside>
+          <div class="worlds-main">
+            <div id="worlds_detail" hidden>
+              <header class="worlds-header">
+                <div class="worlds-header-info">
+                  <h2 id="worlds_title">—</h2>
+                  <div class="world-id" id="worlds_id"></div>
+                </div>
+                <div class="wf-actions worlds-header-actions">
+                  <button type="button" class="ghost await-api" id="btn_export_pack" disabled>导出世界包</button>
+                  <button type="button" class="danger await-api" id="btn_delete_world" disabled>删除世界</button>
+                </div>
+              </header>
+              <div class="worlds-tabs" role="tablist">
+                <button type="button" class="active" data-wtab="world">世界</button>
+                <button type="button" data-wtab="characters">角色</button>
+                <button type="button" data-wtab="state">状态</button>
+                <button type="button" data-wtab="docs">文档</button>
+                <button type="button" data-wtab="lore">Lore</button>
+                <button type="button" data-wtab="saves">存档</button>
+              </div>
+              <div class="worlds-panels">
+              <div class="worlds-panel active" data-wpanel="world">
+                <p id="wf_bg_status" class="muted"></p>
+                <div class="wf-actions">
+                  <button type="button" class="ghost await-api" id="btn_upload_bg" disabled>上传背景</button>
+                  <button type="button" class="ghost await-api" id="btn_clear_bg" disabled>清除背景</button>
+                  <input type="file" id="bg_file_input" accept=".png,.jpg,.jpeg,.webp,.gif" hidden />
+                </div>
+                <div class="wf-row">
+                  <div class="wf"><label>名称</label><input id="wf_name" /></div>
+                  <div class="wf"><label>类型</label><input id="wf_genre" /></div>
+                </div>
+                <div class="wf"><label>简介</label><textarea id="wf_description" rows="3"></textarea></div>
+                <h3>世界默认用户人设</h3>
+                <div class="wf"><label>人设名称</label><input id="wf_persona_name" /></div>
+                <div class="wf"><label>人设描述</label><textarea id="wf_persona_desc" rows="2"></textarea></div>
+                <button type="button" class="primary await-api" id="btn_save_persona" disabled>保存人设</button>
+                <div class="wf-row" style="margin-top:12px">
+                  <div class="wf"><label>Rules JSON</label><textarea id="wf_rules" rows="6"></textarea></div>
+                  <div class="wf"><label>Settings JSON</label><textarea id="wf_settings" rows="6"></textarea></div>
+                </div>
+                <button type="button" class="primary await-api" id="btn_save_world" disabled>保存世界</button>
+              </div>
+              <div class="worlds-panel" data-wpanel="characters">
+                <div class="wf-actions">
+                  <button type="button" class="primary await-api" id="btn_new_char" disabled>新建角色</button>
+                </div>
+                <ul class="char-list" id="char_list"></ul>
+                <form id="char_form" class="card" style="padding:14px;margin-top:12px" hidden>
+                  <input type="hidden" id="cf_id" />
+                  <div class="wf-row">
+                    <div class="wf"><label>名称</label><input id="cf_name" required /></div>
+                    <div class="wf"><label>角色类型</label><select id="cf_role">
+                      <option value="hero_male">男主角</option>
+                      <option value="hero_female">女主角</option>
+                      <option value="party_male">主角团内的男</option>
+                      <option value="party_female">主角团中的女</option>
+                      <option value="npc_important">重要NPC</option>
+                      <option value="npc_story">剧情NPC</option>
+                      <option value="npc_passerby">路人NPC</option>
+                    </select></div>
+                  </div>
+                  <div class="wf"><label>摘要</label><textarea id="cf_summary" rows="2"></textarea></div>
+                  <div class="wf"><label>性格</label><textarea id="cf_personality" rows="2"></textarea></div>
+                  <div class="wf"><label>外貌</label><textarea id="cf_appearance" rows="2"></textarea></div>
+                  <div class="wf"><label>背景</label><textarea id="cf_background" rows="2"></textarea></div>
+                  <div class="wf"><label>场景 scenario</label><textarea id="cf_scenario" rows="2"></textarea></div>
+                  <div class="wf"><label>开场白 first_mes</label><textarea id="cf_first_mes" rows="2"></textarea></div>
+                  <div class="wf"><label>对话示例 mes_example</label><textarea id="cf_mes_example" rows="2"></textarea></div>
+                  <div class="wf"><label>历史后指令</label><textarea id="cf_post_history" rows="2"></textarea></div>
+                  <div class="wf"><label>Attributes JSON</label><textarea id="cf_attributes" rows="3">{}</textarea></div>
+                  <div class="wf"><label>关系 JSON</label><textarea id="cf_relationships" rows="3">[]</textarea></div>
+                  <div class="wf-actions">
+                    <button type="button" class="primary await-api" id="btn_save_char" disabled>保存角色</button>
+                    <button type="button" class="danger await-api" id="btn_delete_char" disabled>删除</button>
+                    <button type="button" class="ghost await-api" id="btn_avatar_pick" disabled>换头像（裁剪）</button>
+                    <input type="file" id="avatar_file_input" accept="image/*" hidden />
+                    <button type="button" class="ghost await-api" id="btn_import_card" disabled>导入角色卡</button>
+                    <input type="file" id="card_import_input" accept=".json,.png" hidden />
+                    <button type="button" class="ghost await-api" id="btn_export_card_json" disabled>导出 JSON</button>
+                    <button type="button" class="ghost await-api" id="btn_export_card_png" disabled>导出 PNG</button>
+                  </div>
+                </form>
+              </div>
+              <div class="worlds-panel" data-wpanel="state">
+                <table class="simple-table"><thead><tr><th>范围</th><th>ID</th><th>键</th><th>值</th></tr></thead><tbody id="state_tbody"></tbody></table>
+                <h3 style="margin-top:16px">设置状态</h3>
+                <div class="wf-row">
+                  <div class="wf"><label>scope</label><select id="sf_scope"><option value="world">world</option><option value="character">character</option></select></div>
+                  <div class="wf"><label>scope_id（角色 ID）</label><input id="sf_scope_id" /></div>
+                </div>
+                <div class="wf"><label>key</label><input id="sf_key" /></div>
+                <div class="wf"><label>value JSON</label><textarea id="sf_value" rows="2"></textarea></div>
+                <button type="button" class="primary await-api" id="btn_set_state" disabled>更新状态</button>
+              </div>
+              <div class="worlds-panel" data-wpanel="docs">
+                <div class="wf-actions">
+                  <button type="button" class="ghost await-api" id="btn_upload_doc" disabled>上传文档</button>
+                  <input type="file" id="doc_file_input" accept=".txt,.docx" hidden />
+                </div>
+                <ul class="simple-list" id="docs_list"></ul>
+              </div>
+              <div class="worlds-panel" data-wpanel="lore">
+                <div class="wf-actions" style="margin-bottom:12px">
+                  <button type="button" class="ghost await-api" id="btn_import_st_wi" disabled>导入 World Info (.json)</button>
+                  <input type="file" id="st_wi_import_input" accept=".json" hidden />
+                  <button type="button" class="ghost await-api" id="btn_export_st_wi" disabled>导出 World Info</button>
+                  <select id="st_wi_mode" class="field-select" style="max-width:120px">
+                    <option value="merge">合并</option>
+                    <option value="replace">替换</option>
+                  </select>
+                </div>
+                <ul id="lore_list"></ul>
+                <h3 style="margin-top:16px">新建 / 编辑 Lore</h3>
+                <div class="wf-row">
+                  <div class="wf"><label>scope</label><select id="lf_scope"><option value="world">world</option><option value="character">character</option></select></div>
+                  <div class="wf"><label>character_id</label><input id="lf_character_id" /></div>
+                </div>
+                <div class="wf"><label>keys（逗号分隔）</label><input id="lf_keys" /></div>
+                <div class="wf"><label>content</label><textarea id="lf_content" rows="4"></textarea></div>
+                <div class="wf-row">
+                  <div class="wf"><label>priority</label><input type="number" id="lf_priority" value="0" /></div>
+                  <div class="wf"><label><input type="checkbox" id="lf_enabled" checked /> enabled</label></div>
+                </div>
+                <div class="wf-actions">
+                  <button type="button" class="ghost await-api" id="btn_new_lore" disabled>清空表单</button>
+                  <button type="button" class="primary await-api" id="lf_save" disabled>创建 Lore</button>
+                </div>
+              </div>
+              <div class="worlds-panel" data-wpanel="saves">
+                <ul id="saves_list"></ul>
+                <h3 style="margin-top:16px">新建存档槽</h3>
+                <div class="wf-row">
+                  <div class="wf"><label>槽位 index</label><input type="number" id="save_slot" value="0" min="0" /></div>
+                  <div class="wf"><label>标签</label><input id="save_label" /></div>
+                </div>
+                <button type="button" class="primary await-api" id="btn_create_save" disabled>创建存档</button>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="worlds_toast" class="worlds-toast"></div>
+        <div id="avatar_crop_modal" class="avatar-crop-modal hidden" aria-hidden="true">
+          <div class="avatar-crop-backdrop"></div>
+          <div class="avatar-crop-dialog">
+            <h2>裁剪头像</h2>
+            <p class="muted">拖动与缩放调整区域</p>
+            <div class="avatar-crop-viewport" id="avatar_crop_viewport">
+              <img id="avatar_crop_img" alt="" />
+              <div class="avatar-crop-frame"></div>
+            </div>
+            <label class="wf">缩放 <input type="range" id="avatar_crop_zoom" min="50" max="300" value="100" /></label>
+            <div class="wf-actions">
+              <button type="button" id="avatar_crop_cancel">取消</button>
+              <button type="button" class="primary" id="avatar_crop_confirm">确定</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view_settings" class="view">
+        <div class="settings-stack">
+          <div class="card settings-card">
+            <h2 class="section-title">个性化</h2>
+            <p class="muted settings-lead">自定义启动器背景图片与遮罩效果，设置保存在本地。</p>
+            <div class="appearance-controls">
+              <div class="appearance-actions">
+                <button type="button" class="primary await-api" id="btn_upload_launcher_bg" disabled>上传背景</button>
+                <button type="button" class="ghost await-api" id="btn_clear_launcher_bg" disabled>恢复默认</button>
+                <input type="file" id="launcher_bg_input" accept=".png,.jpg,.jpeg,.webp,.gif" hidden />
+              </div>
+              <div class="appearance-sliders">
+                <div class="slider-row">
+                  <label>遮罩浓度 <span id="lbl_launcher_overlay">55%</span></label>
+                  <input type="range" id="rng_launcher_overlay" min="0" max="80" value="55" />
+                </div>
+                <div class="slider-row">
+                  <label>背景模糊 <span id="lbl_launcher_blur">8px</span></label>
+                  <input type="range" id="rng_launcher_blur" min="0" max="24" value="8" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card settings-card">
+            <h2 class="section-title">启动偏好</h2>
+            <p class="muted settings-lead">可通过环境变量 <code>NOVEL_WORLD_ROOT</code> 指定项目根目录。</p>
+            <label class="check-row">
+              <input type="checkbox" id="chk_open_browser" checked />
+              启动后自动打开浏览器
+            </label>
+          </div>
+
+          <div class="card settings-card settings-card-wide">
+            <h2 class="section-title">API 提供商</h2>
+            <p class="muted settings-lead">在此配置大模型 API，无需启动 Web 服务即可保存到本地数据库。</p>
+
+            <div class="form-section">
+              <label class="field-label">厂商预设</label>
+              <select id="prov_vendor_select" class="field-select">
+                <option value="">— 选择厂商预设 —</option>
+              </select>
+            </div>
+
+            <div class="form-grid">
+              <label class="field">
+                <span class="field-label">名称</span>
+                <input type="text" id="prov_name" placeholder="显示名称" />
+              </label>
+              <label class="field">
+                <span class="field-label">类型</span>
+                <input type="text" id="prov_type" placeholder="openai / anthropic / gemini" />
+              </label>
+              <label class="field field-span-2">
+                <span class="field-label">API Key</span>
+                <input type="password" id="prov_api_key" placeholder="sk-…" autocomplete="off" />
+                <span class="field-hint" id="prov_api_key_hint"></span>
+              </label>
+              <label class="field field-span-2">
+                <span class="field-label">Base URL</span>
+                <input type="text" id="prov_base_url" placeholder="https://api.openai.com/v1" />
+              </label>
+              <label class="field">
+                <span class="field-label">默认模型</span>
+                <input type="text" id="prov_model" placeholder="gpt-4o-mini" />
+              </label>
+            </div>
+            <input type="hidden" id="prov_preset_slug" value="" />
+
+            <div class="settings-actions">
+              <button type="button" class="primary await-api" id="btn_add_provider" disabled>添加提供商</button>
+            </div>
+            <p class="provider-status" id="provider_status"></p>
+
+            <h3 class="subsection-title">已配置</h3>
+            <div id="provider_list" class="provider-list"></div>
+
+            <p class="settings-footer">
+              <a href="#" id="link_web_settings" class="link-muted" hidden target="_blank" rel="noopener">在浏览器中打开 Web 设置（高级选项）</a>
+            </p>
+          </div>
+
+          <div class="card settings-card settings-card-wide">
+            <h2 class="section-title">酒馆预设导入</h2>
+            <p class="muted settings-lead">导入 SillyTavern Preset JSON，写入全局默认采样参数与提示词分层（与 Web 设置同步）。</p>
+            <div class="settings-actions">
+              <label class="ghost mod-install-label">
+                导入 Preset (.json)
+                <input type="file" id="st_preset_input" class="await-api" accept=".json" hidden disabled />
+              </label>
+            </div>
+            <p class="provider-status" id="st_preset_status"></p>
+          </div>
+
+          <div class="card settings-card settings-card-wide">
+            <h2 class="section-title">MOD 系统</h2>
+            <p class="muted settings-lead">安装与管理扩展功能：Python Hook、前端脚本、世界内容包。与 Web 设置共享启用状态。</p>
+
+            <div class="settings-actions mod-toolbar">
+              <button type="button" class="ghost await-api" id="btn_open_mods_dir" disabled>打开 MOD 目录</button>
+              <button type="button" class="ghost await-api" id="btn_refresh_mods" disabled>刷新列表</button>
+              <label class="primary mod-install-label">
+                安装 MOD (.zip)
+                <input type="file" id="mod_zip_input" class="await-api" accept=".zip" hidden disabled />
+              </label>
+            </div>
+            <p class="mod-status" id="mod_status"></p>
+
+            <h3 class="subsection-title">已安装</h3>
+            <div id="mod_list" class="mod-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view_guide" class="view">
+        <div class="guide-page">
+          <header class="guide-header">
+            <h1>使用指南</h1>
+            <p class="muted">FictoVerse（虚构宇宙）启动器完整使用说明</p>
+          </header>
+
+          <div class="guide-grid">
+            <details class="paper-panel guide-panel">
+              <summary>快速开始</summary>
+              <div class="guide-body">
+                <ol>
+                  <li>首次使用请进入<strong>「环境安装」</strong>页面，点击<strong>「重新检测」</strong></li>
+                  <li>确认 Python、虚拟环境、依赖状态均显示绿色对勾</li>
+                  <li>回到<strong>「一键启动」</strong>页面，点击<strong>「一键启动」</strong>按钮</li>
+                  <li>等待依赖安装和 Web 服务启动（首次可能需要几分钟）</li>
+                  <li>服务启动后会自动打开浏览器，进入 Web 界面即可使用</li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>一键启动</summary>
+              <div class="guide-body">
+                <p>点击「一键启动」按钮会自动完成：检查 Python 环境 → 创建/更新虚拟环境 → 安装项目依赖 → 启动 Web 服务。</p>
+                <p>服务启动成功后：</p>
+                <ul>
+                  <li>按钮变为<strong>「重新打开浏览器」</strong>，可随时重新打开 Web 界面</li>
+                  <li>主页显示服务地址和端口号</li>
+                  <li>状态徽章变为绿色「运行中」</li>
+                </ul>
+                <p>点击左下角红色<strong>「停止服务」</strong>按钮可关闭 Web 服务。</p>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>环境安装</summary>
+              <div class="guide-body">
+                <dl>
+                  <dt>Python</dt><dd>系统需安装 Python 3.10 或更高版本。如未安装，点击「安装 Python」可通过 winget 自动安装。</dd>
+                  <dt>虚拟环境 (.venv)</dt><dd>项目依赖隔离在项目根目录的 <code>.venv</code> 文件夹中，与系统 Python 互不影响。</dd>
+                  <dt>WebView2</dt><dd>启动器界面依赖 Edge WebView2 运行时，Windows 10/11 通常已预装。</dd>
+                  <dt>一键安装</dt><dd>点击「一键安装最新环境」自动完成以上所有检测和安装步骤。</dd>
+                  <dt>重建虚拟环境</dt><dd>勾选「重建虚拟环境」后安装，会先删除现有 .venv 再重建，适合出问题时使用。</dd>
+                </dl>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>Python 版本切换与升级</summary>
+              <div class="guide-body">
+                <p>系统安装多个 Python 版本时（如 3.12 和 3.13），主页「系统信息」的 Python 行会出现下拉框，可切换使用的版本。</p>
+                <p>切换版本会<strong>重建虚拟环境并重新安装所有依赖</strong>，请确认后再操作。</p>
+                <p>旁边的 <strong>↑ 升级按钮</strong> 用于将当前 Python 升级到最新兼容版本（通过 winget），依赖包同理。</p>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>世界管理</summary>
+              <div class="guide-body">
+                <p>在启动器内直接查看、创建、删除虚构世界。首次使用需先启动 Web 服务。</p>
+                <p>每个世界独立保存数据，进入世界聊天后 AI 会读取其设定进行角色扮演或叙事。</p>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>控制台</summary>
+              <div class="guide-body">
+                <p>实时显示启动器运行日志，包括：Python 检测、依赖安装进度、服务启停状态。</p>
+                <p>任务执行期间可自由切换到控制台查看实时输出。点击「清空日志」清除当前显示。</p>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>设置详解</summary>
+              <div class="guide-body">
+                <h3>API 提供商</h3>
+                <p>配置大模型 API（OpenAI、Anthropic、Gemini 等）。数据保存在本地数据库，无需启动 Web 服务即可编辑。选择厂商预设可自动填充 Base URL 和默认模型。</p>
+                <h3>酒馆预设导入</h3>
+                <p>导入 SillyTavern Preset JSON 文件，自动写入全局默认采样参数与提示词分层，与 Web 设置同步。</p>
+                <h3>MOD 系统</h3>
+                <p>安装扩展功能：Python Hook、前端脚本、世界内容包。支持 .zip 格式安装，与 Web 设置共享启用状态。点击「打开 MOD 目录」可手动管理文件。</p>
+                <h3>启动偏好</h3>
+                <p>「启动后自动打开浏览器」控制一键启动后是否自动弹出 Web 界面。可通过环境变量 <code>NOVEL_WORLD_ROOT</code> 指定项目根目录。</p>
+                <h3>外观设置</h3>
+                <p>自定义启动器的背景图片、模糊度和叠加颜色。支持本地图片文件。</p>
+              </div>
+            </details>
+
+            <details class="paper-panel guide-panel">
+              <summary>常见问题</summary>
+              <div class="guide-body">
+                <dl>
+                  <dt>Q: 启动后浏览器没有自动打开？</dt>
+                  <dd>检查「设置 → 启动偏好」中是否勾选了「自动打开浏览器」，或点击主页的「重新打开浏览器」按钮。</dd>
+                  <dt>Q: 提示「未检测到 Python 3.10+」？</dt>
+                  <dd>进入「环境安装」页面，点击「安装 Python」按钮通过 winget 自动安装，或手动从 <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a> 下载安装。</dd>
+                  <dt>Q: 依赖安装失败或超时？</dt>
+                  <dd>检查网络连接，尝试关闭代理/VPN。可勾选「重建虚拟环境」后点击「一键安装最新环境」重试。如仍失败，查看「控制台」日志排查具体错误。</dd>
+                  <dt>Q: 启动器界面无法打开或白屏？</dt>
+                  <dd>需要安装 Edge WebView2 运行时：<a href="https://go.microsoft.com/fwlink/p/?LinkId=2124703" target="_blank" rel="noopener">微软官网下载</a>。Windows 11 通常已预装。</dd>
+                  <dt>Q: Web 界面能打开但 AI 不回复？</dt>
+                  <dd>检查「设置 → API 提供商」是否正确配置了 API Key、Base URL 和模型名称。可先测试 API Key 是否有效。</dd>
+                  <dt>Q: 如何更新软件到最新版本？</dt>
+                  <dd>前往 <a href="https://github.com/AnDaoCc/FictoVerse/releases" target="_blank" rel="noopener">GitHub Releases</a> 下载最新版本。源码用户覆盖文件后重启即可，打包版用户替换 exe 文件。</dd>
+                  <dt>Q: 如何备份数据？</dt>
+                  <dd>项目根目录下的 <code>data/</code> 文件夹包含所有用户数据（世界、对话、设置），备份该文件夹即可。</dd>
+                </dl>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="ui_controls.js"></script>
+  <script src="appearance.js"></script>
+  <script src="worlds.js"></script>
+  <script src="settings_providers.js"></script>
+  <script src="settings_mods.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

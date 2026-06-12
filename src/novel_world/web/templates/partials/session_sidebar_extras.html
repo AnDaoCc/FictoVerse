@@ -1,0 +1,218 @@
+{% if current_session %}
+
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+<details class="sidebar-panel" id="prompt-panel" data-session-id="{{ current_session.id }}">
+
+  <summary>{{ t('session.prompt_panel') }}</summary>
+
+  {% set cfg = current_session.config or {} %}
+
+  {% set gen = cfg.get('generation') or {} %}
+
+  {% set layers = cfg.get('prompt_layers') or {} %}
+
+  {% set an = layers.get('authors_note') or {} %}
+
+  <div class="panel-body">
+
+    <label>{{ label_with_help('session.lore_budget', 'help.session.lore_budget') }}
+
+      <input type="number" id="cfg_lore_budget" value="{{ cfg.get('lore_token_budget', 2000) }}" min="200" step="100" />
+
+    </label>
+
+    <label>{{ label_with_help('session.temperature', 'help.session.temperature') }}
+
+      <input type="number" id="cfg_temperature" value="{{ gen.get('temperature', 0.8) }}" min="0" max="2" step="0.05" />
+
+    </label>
+
+    <label>{{ label_with_help('session.top_p', 'help.session.top_p') }}
+
+      <input type="number" id="cfg_top_p" value="{{ gen.get('top_p', 1.0) }}" min="0" max="1" step="0.05" />
+
+    </label>
+
+    <label>{{ label_with_help('session.max_tokens', 'help.session.max_tokens') }}
+
+      <input type="number" id="cfg_max_tokens" value="{{ gen.get('max_tokens', 512) }}" min="1" step="1" />
+
+    </label>
+
+    <label>{{ label_with_help('session.layer_main', 'help.session.layer_main') }}<textarea id="cfg_layer_main" rows="2">{{ layers.get('main', '') }}</textarea></label>
+
+    <label>{{ label_with_help('session.layer_system_extra', 'help.session.layer_system_extra') }}<textarea id="cfg_layer_system_extra" rows="2">{{ layers.get('system_extra', '') }}</textarea></label>
+
+    <label>{{ label_with_help('session.layer_jailbreak', 'help.session.layer_jailbreak') }}<textarea id="cfg_layer_jailbreak" rows="2">{{ layers.get('jailbreak', '') }}</textarea></label>
+
+    <label>{{ label_with_help('session.authors_note', 'help.session.authors_note') }}<textarea id="cfg_authors_note" rows="2">{{ an.get('content', '') if an is mapping else '' }}</textarea></label>
+
+    <label>{{ label_with_help('session.authors_note_depth', 'help.session.authors_note_depth') }}
+
+      <input type="number" id="cfg_authors_depth" value="{{ an.get('depth', 4) if an is mapping else 4 }}" min="0" />
+
+    </label>
+
+    <label>{{ label_with_help('session.layer_post_history', 'help.session.layer_post_history') }}<textarea id="cfg_layer_post" rows="2">{{ layers.get('post_history', '') }}</textarea></label>
+
+    <label>{{ label_with_help('session.prompt_template', 'help.session.prompt_template') }}
+
+      <select id="cfg_template">
+
+        <option value="chat" {% if layers.get('template', 'chat') == 'chat' %}selected{% endif %}>{{ t('session.template_chat') }}</option>
+
+        <option value="chatml" {% if layers.get('template') == 'chatml' %}selected{% endif %}>{{ t('session.template_chatml') }}</option>
+
+        <option value="alpaca" {% if layers.get('template') == 'alpaca' %}selected{% endif %}>{{ t('session.template_alpaca') }}</option>
+
+      </select>
+
+    </label>
+
+    <div class="row">
+
+      <button type="button" class="ghost" id="save_session_config">{{ t('common.save') }}</button>
+
+      <button type="button" class="ghost" id="preview_prompt_btn">{{ t('session.preview_prompt') }}</button>
+
+      <label class="ghost file-btn" id="import_session_preset_label">
+        {{ t('session.st_preset_import') }}
+        <input type="file" id="import_session_preset" accept=".json" hidden />
+      </label>
+
+    </div>
+
+  </div>
+
+</details>
+
+
+
+<details class="sidebar-panel" id="memory-panel" data-session-id="{{ current_session.id }}">
+
+  <summary>{{ t('session.memory_panel') }}{{ help_tip('help.session.memory_panel') }}</summary>
+
+  <div class="panel-body">
+
+    <ul class="memory-list" id="memory_list">
+
+      {% for m in memories %}
+
+        <li class="memory-item" data-id="{{ m.id }}">
+
+          <span class="memory-content">{{ m.content[:80] }}{% if m.content|length > 80 %}…{% endif %}</span>
+
+          <button type="button" class="ghost memory-pin-toggle" data-id="{{ m.id }}" data-pinned="{{ '1' if m.pinned else '0' }}" title="{{ t('session.toggle_pin') }}">{% if m.pinned %}📌{% else %}☆{% endif %}</button>
+
+          <button type="button" class="icon-danger memory-delete" data-id="{{ m.id }}" title="{{ t('common.delete') }}">×</button>
+
+        </li>
+
+      {% else %}
+
+        <li class="muted memory-empty">{{ t('session.memory_empty') }}</li>
+
+      {% endfor %}
+
+    </ul>
+
+  </div>
+
+</details>
+
+
+
+{% include "partials/session_appearance.html" %}
+
+
+
+<details class="sidebar-panel" id="session-lore-panel" data-session-id="{{ current_session.id }}">
+
+  <summary>{{ t('session.session_lore_panel') }}{{ help_tip('help.session.session_lore_panel') }}</summary>
+
+  <div class="panel-body">
+
+    <p class="hint">{{ t('session.session_lore_hint') }}</p>
+
+    <ul class="memory-list" id="session_lore_list"></ul>
+
+    <div class="row">
+
+      <button type="button" class="ghost" id="session_lore_add_btn">{{ t('session.session_lore_add') }}</button>
+
+      <label class="ghost file-btn">
+
+        {{ t('session.session_lore_import_st') }}
+
+        <input type="file" id="session_lore_import_st" accept=".json" hidden />
+
+      </label>
+
+      <a class="ghost link-btn" id="session_lore_export_st" href="#">{{ t('session.session_lore_export_st') }}</a>
+
+    </div>
+
+  </div>
+
+</details>
+
+
+
+<details class="sidebar-panel" id="display-scripts-panel" data-session-id="{{ current_session.id }}">
+
+  <summary>{{ t('session.display_scripts_panel') }}{{ help_tip('help.session.display_scripts_panel') }}</summary>
+
+  {% set cfg = current_session.config or {} %}
+
+  {% set scripts = cfg.get('display_scripts') or [] %}
+
+  <div class="panel-body">
+
+    <p class="hint">{{ t('session.display_scripts_hint') }}</p>
+
+    <textarea id="cfg_display_scripts" rows="6" placeholder='[{"pattern":"...","replace":"...","flags":"g"}]'>{{ (scripts or []) | tojson }}</textarea>
+
+    <button type="button" class="ghost" id="save_display_scripts">{{ t('common.save') }}</button>
+
+  </div>
+
+</details>
+
+
+
+<div class="modal hidden" id="prompt_preview_modal" aria-hidden="true">
+
+  <div class="modal-backdrop" data-close-modal></div>
+
+  <div class="modal-card">
+
+    <div class="modal-header">
+
+      <h3>{{ t('session.preview_prompt') }}</h3>
+
+      <button type="button" class="icon-danger" data-close-modal>×</button>
+
+    </div>
+
+    <div class="modal-body">
+
+      <div class="hint" id="preview_meta"></div>
+
+      <h4>{{ t('session.preview_system') }}</h4>
+
+      <pre id="preview_system" class="preview-block"></pre>
+
+      <h4>{{ t('session.preview_messages') }}</h4>
+
+      <pre id="preview_messages" class="preview-block"></pre>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endif %}
+
+

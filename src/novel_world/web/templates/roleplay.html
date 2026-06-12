@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% set title = t('roleplay.title') %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+{% block content %}
+<div class="chat-layout roleplay-layout">
+  <aside class="chat-sidebar" id="chat_sidebar">
+    <div class="rp-char-header">
+      <button type="button" class="sidebar-inline-toggle sidebar-inline-toggle--corner" id="chat_sidebar_toggle" aria-expanded="true" aria-label="{{ t('sidebar.collapse_chat') }}">‹</button>
+      {% if avatar_url %}
+        <img class="rp-char-avatar-lg" src="{{ avatar_url }}" alt="{{ character.name }}" />
+      {% else %}
+        <div class="rp-char-avatar-lg fallback">{{ character.name[0] if character.name else '?' }}</div>
+      {% endif %}
+      <div>
+        <h1>{{ character.name }}</h1>
+        <div class="muted">{{ world.name }}</div>
+      </div>
+      <label class="upload-btn ghost-upload avatar-crop-trigger">{{ label_with_help('roleplay.change_avatar', 'help.roleplay.change_avatar') }}
+        <input
+          type="file"
+          accept=".png,.jpg,.jpeg,.webp,.gif"
+          hidden
+          data-avatar-crop
+          data-upload-url="/api/worlds/{{ world_id }}/characters/{{ character_id }}/avatar"
+          data-redirect-url="/worlds/{{ world_id }}/roleplay/{{ character_id }}/chat{% if current_session %}?session_id={{ current_session.id }}{% endif %}"
+        />
+      </label>
+    </div>
+
+    <a class="link-btn" href="/worlds/{{ world_id }}">{{ t('roleplay.back_world') }}</a>
+
+    <form method="post" action="/roleplay/sessions/create" class="new-session-form compact-form new-session-compact" id="new-session-form">
+      <input type="hidden" name="world_id" value="{{ world_id }}" />
+      <input type="hidden" name="character_id" value="{{ character_id }}" />
+      <button type="submit" class="primary new-session-cta btn-lg" {% if provider_option_groups|length == 0 %}disabled{% endif %}>{{ t('roleplay.new_session') }}</button>
+      <details class="new-session-advanced">
+        <summary>{{ t('chat.advanced_options') }}</summary>
+        <div class="panel-body">
+      <label>{{ label_with_help('chat.provider_label', 'help.chat.provider_label') }}
+        <select name="provider_id" id="provider_select" required {% if provider_option_groups|length == 0 %}disabled{% endif %}>
+          {% for group in provider_option_groups %}
+            <optgroup label="{{ group.label }}">
+              {% for opt in group.options %}
+                <option
+                  value="{{ opt.value }}"
+                  data-default-model="{{ opt.default_model }}"
+                  data-models="{{ opt.models | join('|') }}"
+                  data-configured="true"
+                >{{ opt.label }}</option>
+              {% endfor %}
+            </optgroup>
+          {% endfor %}
+        </select>
+      </label>
+      <label>{{ label_with_help('chat.model_label', 'help.chat.model_label') }}
+        <select id="model_select"></select>
+        <input name="model" id="model_input" placeholder="{{ t('common.model_manual_ph') }}" />
+        <div class="hint" id="model_source_hint"></div>
+      </label>
+      <label>{{ label_with_help('roleplay.persona_name', 'help.roleplay.persona_name') }}
+        <input name="persona_name" value="{{ user_persona.name or '' }}" placeholder="{{ t('roleplay.persona_name_ph') }}" />
+      </label>
+      <label>{{ label_with_help('roleplay.persona_desc', 'help.roleplay.persona_desc') }}
+        <textarea name="persona_description" rows="2" placeholder="{{ t('roleplay.persona_desc_ph') }}">{{ user_persona.description or '' }}</textarea>
+      </label>
+      <p class="hint">{{ t('user_persona.god_mode_hint') }}</p>
+        </div>
+      </details>
+    </form>
+
+    {% include "partials/session_user_persona.html" %}
+
+    <div class="session-list">
+      {% for s in sessions %}
+        <div class="session-item {% if current_session and current_session.id == s.id %}active{% endif %}">
+          <a class="session-link" href="/worlds/{{ world_id }}/roleplay/{{ character_id }}/chat?session_id={{ s.id }}">
+            <div class="session-title">{{ s.title }}</div>
+            <div class="session-meta">{{ s.model }}</div>
+          </a>
+          <form method="post" action="/roleplay/sessions/{{ s.id }}/delete" class="session-delete" onsubmit="return confirm('{{ t('roleplay.delete_confirm') }}');">
+            <input type="hidden" name="world_id" value="{{ world_id }}" />
+            <input type="hidden" name="character_id" value="{{ character_id }}" />
+            <button type="submit" class="icon-danger" title="{{ t('roleplay.delete_session') }}" aria-label="{{ t('roleplay.delete_session') }}">×</button>
+          </form>
+        </div>
+      {% else %}
+        <div class="empty">{{ t('roleplay.no_sessions') }}</div>
+      {% endfor %}
+    </div>
+
+    {% include "partials/session_sidebar_extras.html" %}
+    {% include "partials/avatar_crop_modal.html" %}
+  </aside>
+
+  <section class="chat-main {% if session_background_url %}has-session-bg{% endif %}"
+           {% if session_background_url %}style="--session-bg: url('{{ session_background_url }}');"{% endif %}>
+    <button type="button" class="sidebar-inline-toggle sidebar-inline-toggle--expand" id="chat_sidebar_expand" hidden aria-label="{{ t('sidebar.expand_chat') }}">›</button>
+    {% if current_session %}
+      <div class="chat-header">
+        <div>
+          <div class="chat-title">{{ current_session.title }}</div>
+          <div class="chat-meta">{{ t('roleplay.chatting_with') }} {{ character.name }}</div>
+        </div>
+        {% if can_switch_greeting %}
+        <label class="greeting-switch">
+          {{ t('roleplay.greeting_switch') }}
+          <select id="greeting_select" data-session-id="{{ current_session.id }}">
+            {% for g in greeting_options %}
+              <option value="{{ loop.index0 }}" {% if loop.index0 == greeting_index %}selected{% endif %}>
+                {{ t('roleplay.greeting_option', index=loop.index) }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+        {% endif %}
+      </div>
+
+      <div class="messages rp-messages" id="messages"
+           data-avatar-url="{{ avatar_url }}"
+           data-char-name="{{ character.name }}"
+           data-character-id="{{ character_id }}"
+           data-world-id="{{ world_id }}"
+           data-char-tts-voice="{{ character.metadata.get('tts_voice', '') if character.metadata else '' }}"
+           data-persona-name="{{ user_display_name }}">
+        {% for m in messages %}
+          {% if m.status != 'streaming' or m.content or m.thinking_content %}
+          <div class="rp-message message {{ m.role }}" data-message-id="{{ m.id }}"
+               {% if m.speaker %}data-character-id="{{ m.speaker.get('character_id', '') }}" data-world-id="{{ m.speaker.get('world_id', world_id) }}" data-tts-voice="{{ m.speaker.get('tts_voice', '') }}" data-speaker-name="{{ m.speaker.get('name', '') }}"{% elif m.role == 'assistant' %}data-character-id="{{ character_id }}" data-world-id="{{ world_id }}" data-tts-voice="{{ character.metadata.get('tts_voice', '') if character.metadata else '' }}"{% endif %}>
+            {% if m.role == 'assistant' %}
+              <div class="rp-row assistant-row">
+                {% if m.speaker and m.speaker.get('avatar_url') %}
+                  <img class="rp-avatar" src="{{ m.speaker.get('avatar_url') }}" alt="" />
+                {% elif avatar_url %}
+                  <img class="rp-avatar" src="{{ avatar_url }}" alt="" />
+                {% else %}
+                  <div class="rp-avatar fallback">{{ character.name[0] if character.name else '?' }}</div>
+                {% endif %}
+                <div class="bubble">
+                  <div class="role-label">{{ m.speaker.get('name') if m.speaker else character.name }}<span class="speaker-world">{{ world.name }}</span></div>
+                  {% if m.thinking_content and user_prefs.show_thinking %}
+                    <details class="thinking-block"><summary>{{ t('chat.thinking') }}</summary><div class="thinking-content">{{ m.thinking_content }}</div></details>
+                  {% endif %}
+                  <div class="content">{{ display_transform(m.content, current_session.id) }}</div>
+                </div>
+              </div>
+            {% else %}
+              <div class="rp-row user-row">
+                <div class="bubble">
+                  <div class="role-label">{{ user_display_name }}</div>
+                  <div class="content">{{ m.content }}</div>
+                </div>
+                <div class="rp-avatar fallback user-fallback" title="{{ user_display_name }}">{{ user_display_name[0] }}</div>
+              </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      <div class="composer" id="roleplay-composer" data-session-id="{{ current_session.id }}">
+        <div class="composer-row">
+          <textarea id="roleplay_input" rows="3" placeholder="{{ t('roleplay.input_placeholder', name=character.name) }}"></textarea>
+          <div class="composer-buttons">
+            <button type="button" class="ghost" id="remember_btn">{{ t('session.remember') }}</button>
+            <button type="button" class="primary send-btn" id="send_btn">{{ t('chat.send') }}</button>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="chat-empty">
+        <h2>{{ t('roleplay.start_title') }}</h2>
+        <p>{{ t('roleplay.start_hint') }}</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<link rel="stylesheet" href="/static/avatar_crop.css" />
+<script src="/static/session_tools.js"></script>
+<script src="/static/message_ops.js"></script>
+<script src="/static/roleplay.js"></script>
+<script src="/static/avatar_crop.js"></script>
+{% endblock %}

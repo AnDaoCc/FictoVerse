@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% set title = t('settings.title') %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+{% block page_subtitle %}<p class="topbar-subtitle">{{ t('settings.subtitle') }}</p>{% endblock %}
+{% block content %}
+<div class="page page--wide settings-page">
+  <div class="page-header page-header--compact">
+    <h1>{{ t('settings.title') }}</h1>
+    <p class="subtitle">{{ t('settings.subtitle') }}</p>
+  </div>
+
+  <div class="settings-layout">
+    <nav class="settings-nav" aria-label="{{ t('settings.nav_label') }}">
+      <a class="settings-nav__link active" href="#settings-general"><span class="settings-nav__icon">⚙</span>{{ t('settings.nav_general') }}</a>
+      <a class="settings-nav__link" href="#settings-providers"><span class="settings-nav__icon">◇</span>{{ t('settings.nav_providers') }}</a>
+      <a class="settings-nav__link" href="#settings-chat"><span class="settings-nav__icon">✎</span>{{ t('settings.nav_chat') }}</a>
+      <a class="settings-nav__link" href="#settings-imports"><span class="settings-nav__icon">⬇</span>{{ t('settings.nav_imports') }}</a>
+      <a class="settings-nav__link" href="#settings-mods"><span class="settings-nav__icon">🧩</span>{{ t('settings.nav_mods') }}</a>
+      <a class="settings-nav__link" href="#settings-system"><span class="settings-nav__icon">◈</span>{{ t('settings.nav_system') }}</a>
+    </nav>
+
+    <div class="settings-content">
+      {% include "settings/_general.html" %}
+      {% include "settings/_providers.html" %}
+      {% include "settings/_chat_prefs.html" %}
+      {% include "settings/_imports.html" %}
+      {% include "settings/_mods.html" %}
+      {% include "settings/_system.html" %}
+      {% include "partials/author_credit.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>window.__SETTINGS_TTS__ = {{ {
+  'voice': user_prefs.tts_voice or '',
+  'backend': user_prefs.tts_backend or 'edge',
+  'locale': user_prefs.locale or 'zh',
+  'modsUninstallConfirm': t('settings.mods_uninstall_confirm')
+} | tojson }};</script>
+<script src="/static/settings_tts.js"></script>
+{% endblock %}

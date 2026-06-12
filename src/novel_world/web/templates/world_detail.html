@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% set title = world.name %}
+{% from "partials/help_tip.html" import help_tip, label_with_help, field_label_with_help %}
+{% from "components/action_bar.html" import action_more %}
+{% block page_subtitle %}<p class="topbar-subtitle">{{ world.genre or t('world_detail.tab_world_desc') }}</p>{% endblock %}
+{% block content %}
+<div class="page world-book-page book-theme">
+  <div class="book-title-page">
+    <h1>{{ world.name }}</h1>
+    {% if world.genre %}<div class="book-title-genre">{{ world.genre }}</div>{% endif %}
+    <div class="action-bar action-bar--between book-actions">
+      <div class="action-bar__primary">
+        <a class="btn primary" href="/worlds/{{ world.id }}/chat">{{ t('world_detail.enter_chat') }}{{ help_tip('help.world_detail.enter_chat') }}</a>
+        <a class="btn" href="/worlds">{{ t('world_detail.back_list') }}</a>
+      </div>
+      <div class="action-bar__secondary">
+        {% call action_more(t('world_detail.more_actions')) %}
+          <a class="btn ghost" href="/api/worlds/{{ world.id }}/export-pack?include_uploads=1">{{ t('world_detail.export_pack_full') }}</a>
+          <a class="btn ghost" href="/api/worlds/{{ world.id }}/export-pack?include_uploads=0">{{ t('world_detail.export_pack_lite') }}</a>
+          <form method="post" action="/worlds/{{ world.id }}/delete" onsubmit='return confirm("{{ t('worlds.delete_confirm', name=world.name) }}");'>
+            <button type="submit" class="btn danger">{{ t('world_detail.delete_world') }}</button>
+          </form>
+        {% endcall %}
+      </div>
+    </div>
+    <div class="book-title-footnote mono">{{ world.id }}</div>
+  </div>
+
+  <div class="book-spread">
+  <div class="tabs book-tabs" data-tabs role="tablist">
+    <button type="button" class="tab-btn active" data-tab="world"><span class="tab-btn__icon">◇</span>{{ t('world_detail.tab_world') }}</button>
+    <button type="button" class="tab-btn" data-tab="characters"><span class="tab-btn__icon">👤</span>{{ t('world_detail.tab_characters') }}<span class="tab-badge">{{ characters|length }}</span></button>
+    <button type="button" class="tab-btn" data-tab="state"><span class="tab-btn__icon">◈</span>{{ t('world_detail.tab_state') }}</button>
+    <button type="button" class="tab-btn" data-tab="docs"><span class="tab-btn__icon">📄</span>{{ t('world_detail.tab_docs') }}<span class="tab-badge">{{ world_documents|length }}</span></button>
+    <button type="button" class="tab-btn" data-tab="lore"><span class="tab-btn__icon">📖</span>{{ t('world_detail.tab_lore') }}<span class="tab-badge">{{ lore_entries|length }}</span></button>
+    <button type="button" class="tab-btn" data-tab="saves"><span class="tab-btn__icon">💾</span>{{ t('world_detail.tab_saves') }}<span class="tab-badge">{{ saves|length }}</span></button>
+  </div>
+
+  <div data-tabs-scope>
+  {% include "world_detail/_tab_world.html" %}
+  {% include "world_detail/_tab_docs.html" %}
+  {% include "world_detail/_tab_characters.html" %}
+  {% include "world_detail/_tab_state.html" %}
+  {% include "world_detail/_tab_lore.html" %}
+  {% include "world_detail/_tab_saves.html" %}
+
+  </div>
+  </div>
+</div>
+{% include "partials/avatar_crop_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/avatar_crop.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const locale = {{ (user_prefs.locale or 'zh') | tojson }};
+  document.querySelectorAll(".char-tts-voice-select").forEach(async (el) => {
+    const resp = await fetch(`/api/tts/voices?backend=edge&locale=${encodeURIComponent(locale)}`);
+    const data = await resp.json().catch(() => ({}));
+    const picked = el.dataset.selected || "";
+    (data.voices || []).forEach((v) => {
+      const opt = document.createElement("option");
+      opt.value = v.id;
+      opt.textContent = v.name || v.id;
+      if (v.id === picked) opt.selected = true;
+      el.appendChild(opt);
+    });
+  });
+});
+</script>
+{% endblock %}

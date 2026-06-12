@@ -1,0 +1,26 @@
+{% from "components/settings_group.html" import settings_group %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+{% call settings_group('settings-general', t('settings.nav_general'), t('settings.nav_general_desc')) %}
+  <section class="card">
+    <h2>{{ t('settings.nav_general') }}</h2>
+    <form method="post" action="/settings/preferences" class="pref-form">
+      <label>{{ label_with_help('settings.locale', 'help.settings.locale') }}
+        <select name="locale" onchange="this.form.submit()">
+          {% for code in available_locales %}
+            <option value="{{ code }}" {% if user_prefs.locale == code or (not user_prefs.locale and code == 'zh') %}selected{% endif %}>
+              {% if code == 'zh' %}简体中文{% elif code == 'en' %}English{% else %}{{ code }}{% endif %}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="switch-row">
+        <span>
+          <span class="switch-title">{{ t('settings.show_thinking') }}{{ help_tip('help.settings.show_thinking') }}</span>
+          <span class="hint">{{ t('settings.show_thinking_hint') }}</span>
+        </span>
+        <input type="checkbox" name="show_thinking" value="true" {% if user_prefs.show_thinking %}checked{% endif %} onchange="this.form.submit()" />
+      </label>
+    </form>
+  </section>
+{% endcall %}

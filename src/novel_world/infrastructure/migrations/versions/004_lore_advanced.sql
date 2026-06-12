@@ -1,0 +1,12 @@
+-- Lorebook 高级字段（B 档）
+
+ALTER TABLE lore_entries ADD COLUMN probability REAL NOT NULL DEFAULT 1.0;
+ALTER TABLE lore_entries ADD COLUMN lore_group TEXT NOT NULL DEFAULT '';
+ALTER TABLE lore_entries ADD COLUMN group_override INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE lore_entries ADD COLUMN group_weight INTEGER NOT NULL DEFAULT 100;
+ALTER TABLE lore_entries ADD COLUMN cooldown INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE lore_entries ADD COLUMN sticky INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE lore_entries ADD COLUMN character_filter_json TEXT NOT NULL DEFAULT '[]';
+ALTER TABLE lore_entries ADD COLUMN filter_type TEXT NOT NULL DEFAULT 'include';
+ALTER TABLE lore_entries ADD COLUMN scan_depth INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE lore_entries ADD COLUMN use_group_scoring INTEGER NOT NULL DEFAULT 0;

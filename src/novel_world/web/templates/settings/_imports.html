@@ -1,0 +1,41 @@
+{% from "components/settings_group.html" import settings_group %}
+{% from "partials/help_tip.html" import help_tip %}
+
+{% call settings_group('settings-imports', t('settings.nav_imports'), t('settings.nav_imports_desc')) %}
+  <section class="card">
+    <h2>{{ t('settings.st_preset_title') }}{{ help_tip('help.settings.st_preset') }}</h2>
+    <p class="subtitle card-lead">{{ t('settings.st_preset_hint') }}</p>
+    <form method="post" action="/settings/import-preset" enctype="multipart/form-data" class="inline-form">
+      <label class="ghost file-btn">
+        {{ t('settings.st_preset_import') }}
+        <input type="file" name="file" accept=".json" onchange="this.form.submit()" hidden />
+      </label>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('settings.st_regex_title') }}{{ help_tip('help.settings.st_regex') }}</h2>
+    <p class="subtitle card-lead">{{ t('settings.st_regex_hint') }}</p>
+    <div class="row">
+      <form method="post" action="/settings/import-regex" enctype="multipart/form-data" class="inline-form">
+        <label class="ghost file-btn">
+          {{ t('settings.st_regex_import') }}
+          <input type="file" name="file" accept=".json" onchange="this.form.submit()" hidden />
+        </label>
+      </form>
+      <a class="ghost link-btn" href="/api/settings/regex/export">{{ t('settings.st_regex_export') }}</a>
+    </div>
+    <p class="hint">{{ t('settings.display_scripts_migrate_hint') }}</p>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('settings.st_stscript_title') }}</h2>
+    <p class="subtitle card-lead">{{ t('settings.st_stscript_hint') }}</p>
+    <form method="post" action="/settings/import-stscript" enctype="multipart/form-data" class="inline-form">
+      <label class="ghost file-btn">
+        {{ t('settings.st_stscript_import') }}
+        <input type="file" name="file" accept=".json" onchange="this.form.submit()" hidden />
+      </label>
+    </form>
+  </section>
+{% endcall %}

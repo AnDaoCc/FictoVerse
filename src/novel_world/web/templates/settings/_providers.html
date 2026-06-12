@@ -1,0 +1,82 @@
+{% from "components/settings_group.html" import settings_group %}
+{% from "partials/help_tip.html" import help_tip, label_with_help %}
+
+{% call settings_group('settings-providers', t('settings.nav_providers'), t('settings.pick_vendor_hint')) %}
+  <section class="card">
+    <h2>{{ t('settings.pick_vendor') }}{{ help_tip('help.settings.pick_vendor') }}</h2>
+    <div class="vendor-grid" id="vendor_grid">
+      {% for item in catalog %}
+        <button type="button" class="vendor-card {% if item.configured %}configured{% endif %}" data-preset='{{ item | tojson }}'>
+          <span class="vendor-name">{{ item.name }}</span>
+          <span class="vendor-desc">{{ item.description }}</span>
+          <span class="vendor-badge">{% if item.configured %}{{ t('settings.configured') }}{% else %}{{ t('settings.pending') }}{% endif %}</span>
+        </button>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('settings.configured_list') }}</h2>
+    {% if providers|length == 0 %}
+      <div class="empty-state">
+        <div class="empty-state__title">{{ t('settings.no_providers') }}</div>
+        <p class="empty-state__desc">{{ t('settings.no_providers_hint') }}</p>
+      </div>
+    {% else %}
+      <div class="provider-list">
+        {% for p in providers %}
+          <div class="provider-item" data-provider-id="{{ p.id }}">
+            <div>
+              <div class="provider-name">{{ p.name }}</div>
+              <div class="provider-meta mono">{{ p.type }} · {{ p.config.get('model', '') }}</div>
+              <div class="provider-meta mono small">{{ p.config.get('base_url', '') }}</div>
+              <div class="provider-status" aria-live="polite"></div>
+            </div>
+            <div class="provider-actions">
+              <button type="button" class="btn-fetch-provider-models" data-provider-id="{{ p.id }}">{{ t('settings.refresh_models') }}</button>
+              <button type="button" class="btn-test-provider" data-provider-id="{{ p.id }}" data-model="{{ p.config.get('model', '') }}">{{ t('settings.test_connection') }}</button>
+              <form method="post" action="/settings/providers/{{ p.id }}/delete" onsubmit='return confirm("{{ t('settings.delete_confirm') }}");'>
+                <button type="submit" class="danger">{{ t('settings.delete') }}</button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="card">
+    <h2>{{ t('settings.add_provider') }}</h2>
+    <form method="post" action="/settings/providers/create" class="provider-form compact-form" id="provider_form">
+      <input type="hidden" name="preset_slug" id="preset_slug" value="{{ active_preset }}" />
+      <div class="grid2">
+        <label>{{ label_with_help('settings.display_name', 'help.settings.display_name') }}<input name="name" id="provider_name" placeholder="{{ t('settings.display_name_ph') }}" /></label>
+        <label>{{ label_with_help('settings.type', 'help.settings.type') }}
+          <select name="provider_type" id="provider_type">
+            <option value="openai">{{ t('settings.type_openai') }}</option>
+            <option value="anthropic">{{ t('settings.type_anthropic') }}</option>
+            <option value="gemini">{{ t('settings.type_gemini') }}</option>
+            <option value="openai_compatible">{{ t('settings.type_compatible') }}</option>
+          </select>
+        </label>
+      </div>
+      <div class="grid2">
+        <label>{{ label_with_help('settings.api_key', 'help.settings.api_key') }}<input name="api_key" id="provider_api_key" type="password" placeholder="sk-..." /></label>
+        <label>{{ label_with_help('settings.base_url', 'help.settings.base_url') }}<input name="base_url" id="provider_base_url" placeholder="{{ t('settings.base_url_ph') }}" /></label>
+      </div>
+      <label class="model-field">{{ label_with_help('settings.default_model', 'help.settings.default_model') }}
+        <div class="model-picker">
+          <div class="model-picker-row">
+            <select id="provider_model_select"></select>
+            <button type="button" class="ghost" id="discover_models_btn">{{ t('settings.fetch_models') }}</button>
+          </div>
+          <input name="model" id="provider_model" placeholder="{{ t('common.model_manual_ph') }}" />
+          <div class="hint" id="model_fetch_hint"></div>
+        </div>
+      </label>
+      <div class="form-actions">
+        <button type="submit" class="primary">{{ t('settings.save_provider') }}</button>
+      </div>
+    </form>
+  </section>
+{% endcall %}

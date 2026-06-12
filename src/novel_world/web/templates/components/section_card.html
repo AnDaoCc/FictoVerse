@@ -1,0 +1,9 @@
+{% macro section_card(title, desc=None, compact=False, muted=False) %}
+<section class="section-card{% if compact %} section-card--compact{% endif %}{% if muted %} section-card--muted{% endif %}">
+  <div class="section-card__head">
+    <h2 class="section-card__title">{{ title }}</h2>
+    {% if desc %}<p class="section-card__desc">{{ desc }}</p>{% endif %}
+  </div>
+  {{ caller() }}
+</section>
+{% endmacro %}

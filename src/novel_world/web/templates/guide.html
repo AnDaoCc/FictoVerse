@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% set title = t('guide_page.title') %}
+{% block content %}
+<div class="page guide-page">
+  <div class="page-header">
+    <h1>{{ t('guide_page.title') }}</h1>
+    <p class="subtitle">{{ t('guide_page.subtitle') }}</p>
+  </div>
+
+  <section class="card">
+    <h2>{{ t('guide_page.quick_start_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.quick_start_body') }}</p>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('guide_page.worlds_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.worlds_body') }}</p>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('guide_page.modes_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.modes_body') }}</p>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('guide_page.prompt_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.prompt_body') }}</p>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('guide_page.appearance_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.appearance_body') }}</p>
+  </section>
+
+  <section class="card" id="guide_st_migration">
+    <h2>{{ t('guide_page.st_migration_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.st_migration_body') }}</p>
+  </section>
+
+  <section class="card" id="guide_st_b_compat">
+    <h2>{{ t('guide_page.st_b_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.st_b_body') }}</p>
+  </section>
+
+  <section class="card" id="guide_st_c_compat">
+    <h2>{{ t('guide_page.st_c_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.st_c_body') }}</p>
+  </section>
+
+  <section class="card" id="guide_tts">
+    <h2>{{ t('guide_page.tts_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.tts_body') }}</p>
+  </section>
+
+  <section class="card" id="guide_mods">
+    <h2>{{ t('guide_page.mods_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.mods_body') }}</p>
+    <details class="hook-reference">
+      <summary>{{ t('settings.hook_reference') }}</summary>
+      <ul class="hook-ref-list">
+        <li><code>message.before_send</code> — {{ t('guide_page.mod_hook_before_send') }}</li>
+        <li><code>message.after_receive</code> — {{ t('guide_page.mod_hook_after_receive') }}</li>
+        <li><code>display.transform</code> — {{ t('guide_page.mod_hook_display') }}</li>
+        <li><code>prompt.before_build</code> / <code>prompt.after_build</code> — {{ t('guide_page.mod_hook_prompt') }}</li>
+        <li><code>chat.message.render</code> — {{ t('guide_page.mod_hook_client_render') }}</li>
+        <li><code>hooks.register_command</code> — {{ t('guide_page.mod_hook_command') }}</li>
+      </ul>
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>{{ t('guide_page.faq_title') }}</h2>
+    <p class="card-lead guide-body">{{ t('guide_page.faq_body') }}</p>
+  </section>
+
+  {% include "partials/author_credit.html" %}
+</div>
+{% endblock %}

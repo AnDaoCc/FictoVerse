@@ -1,0 +1,21 @@
+{% macro action_bar() %}
+<div class="action-bar action-bar--between">
+  <div class="action-bar__primary">{{ caller() }}</div>
+</div>
+{% endmacro %}
+
+{% macro action_bar_split() %}
+<div class="action-bar action-bar--between">
+  <div class="action-bar__primary">{{ caller('primary') }}</div>
+  <div class="action-bar__secondary">{{ caller('secondary') }}</div>
+</div>
+{% endmacro %}
+
+{% macro action_more(label='更多') %}
+<details class="action-bar__more">
+  <summary>{{ label }}</summary>
+  <div class="action-bar__dropdown">
+    {{ caller() }}
+  </div>
+</details>
+{% endmacro %}
